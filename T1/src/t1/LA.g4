@@ -147,18 +147,18 @@ COMENTARIO : '{' ~('\n'|'\r'|'\t')* '\r'? '\n'? '}'('\n'('\n'|'\t'))* {skip();};
 
 // Analisador Sintático
 
-programa : { pilhaDeTabelas.empilhar(new TabelaDeSimbolos("global"));
-             TabelaDeTipos.adicionarSimbolo("literal", "literal");
-             TabelaDeTipos.adicionarSimbolo("inteiro", "inteiro");
-             TabelaDeTipos.adicionarSimbolo("real", "real");
-             TabelaDeTipos.adicionarSimbolo("logico", "logico");
-             
-            }
-           declaracoes ALGORITMO corpo FIM_ALGORITMO
-           { 
-             pilhaDeTabelas.desempilhar();
-             if(error!="")throw new RuntimeException(error);
-           }
+programa : 
+         { pilhaDeTabelas.empilhar(new TabelaDeSimbolos("global"));
+           TabelaDeTipos.adicionarSimbolo("literal", "literal");
+           TabelaDeTipos.adicionarSimbolo("inteiro", "inteiro");
+           TabelaDeTipos.adicionarSimbolo("real", "real");
+           TabelaDeTipos.adicionarSimbolo("logico", "logico");
+         }
+         declaracoes ALGORITMO corpo FIM_ALGORITMO
+         { 
+            pilhaDeTabelas.desempilhar();
+            if(error!="")throw new RuntimeException(error);
+         }
          ;
 
 declaracoes : decl_local_global declaracoes 
@@ -647,7 +647,7 @@ fator_logico returns[String tipoSimbolo]
 
 parcela_logica returns [String tipoSimbolo]
 @init{$tipoSimbolo="SEM_TIPO";}
-    : VERDADEIRO {$tipoSimbolo = "logico";}
+              : VERDADEIRO {$tipoSimbolo = "logico";}
               | FALSO {$tipoSimbolo = "logico";}
               | v1=exp_relacional {$tipoSimbolo=$v1.tipoSimbolo;}
               ;
