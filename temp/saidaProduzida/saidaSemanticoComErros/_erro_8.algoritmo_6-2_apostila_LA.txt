@@ -1,2 +1,0 @@
-Linha 5: tipo sem_tipo nao declarado
-Fim da compilacao

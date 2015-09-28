@@ -38,6 +38,14 @@ public class TabelaDeSimbolos {
         return atributos;
     }
     
+    public List<String> getSimbolos_tipos(){
+        List<String> atributos = new ArrayList<String>();
+        for(int i=0; i< simbolos.size();i++){
+            atributos.add(simbolos.get(i).getTipo());
+        }
+        return atributos;
+    }
+    
     public List<EntradaTabelaDeSimbolos> getSimbolos2(){
         List<EntradaTabelaDeSimbolos> atributos = new ArrayList<EntradaTabelaDeSimbolos>();
         for(int i=0; i< simbolos.size();i++){

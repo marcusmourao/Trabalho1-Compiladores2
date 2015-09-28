@@ -1,2 +1,0 @@
-Linha 31: identificador colisao nao declarado
-Fim da compilacao

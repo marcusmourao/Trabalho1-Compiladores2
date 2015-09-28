@@ -1,2 +1,0 @@
-Linha 19: identificador media_final nao declarado
-Fim da compilacao
