@@ -5,12 +5,8 @@
         <group>
             <file>file:/C:/Users/Marcus/Downloads/comp2/T1/src/t1/VerificadorDeTipos.java</file>
             <file>file:/C:/Users/Marcus/Downloads/comp2/T1/src/t1/LA.g4</file>
-            <file>file:/C:/Users/Marcus/Downloads/comp2/T1/src/t1/LAParser.java</file>
-            <file>file:/C:/Users/Marcus/Downloads/comp2/T1/src/t1/GeradorDeCodigo.java</file>
+            <file>file:/C:/Users/Marcus/Downloads/comp2/T1/src/t1/TabelaDeSimbolos.java</file>
             <file>file:/C:/Users/Marcus/Downloads/comp2/T1/src/t1/PilhaDeTabelas.java</file>
-            <file>file:/C:/Users/Marcus/Downloads/comp2/T1/src/t1/TestaAnalisadorSintatico.java</file>
-            <file>file:/C:/Users/Marcus/Downloads/comp2/T1/src/t1/T1ErrorListener.java</file>
-            <file>file:/C:/Users/Marcus/Downloads/comp2/T1/src/t1/EntradaTabelaDeSimbolos.java</file>
         </group>
     </open-files>
 </project-private>
