@@ -589,7 +589,20 @@ op_unario : SUBTRACAO
 
 exp_aritmetica returns [String tipoSimbolo, String txt]
     @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
-    : v1=termo outros_termos {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
+    : v1=termo v2=outros_termos 
+      {
+       $txt=$v1.txt;
+       if($v2.tipoSimbolo.equals("SEM_TIPO"))
+            $tipoSimbolo=$v1.tipoSimbolo;
+        else
+        {
+            if($v1.tipoSimbolo.equals($v2.tipoSimbolo) || $v1.tipoSimbolo.equals("inteiro") && $v2.tipoSimbolo.equals("real") || $v1.tipoSimbolo.equals("real") && $v2.tipoSimbolo.equals("inteiro"))
+                $tipoSimbolo=$v1.tipoSimbolo;
+            else
+                $tipoSimbolo="incompativel";
+        }
+       
+      }
     ;
 
 op_multiplicacao : MULTIPLICACAO
@@ -605,9 +618,23 @@ termo returns [String tipoSimbolo, String txt]
     :	v1=fator outros_fatores {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
     ;
 
-outros_termos : op_adicao termo outros_termos
-              |
-              ;
+outros_termos returns[String tipoSimbolo]
+@init{$tipoSimbolo="SEM_TIPO";}
+    : op_adicao v1=termo v2=outros_termos
+    {
+        if($v2.tipoSimbolo.equals("SEM_TIPO"))
+            $tipoSimbolo=$v1.tipoSimbolo;
+        else
+        {
+            if($v1.tipoSimbolo.equals($v2.tipoSimbolo) || $v1.tipoSimbolo.equals("inteiro") && $v2.tipoSimbolo.equals("real") || $v1.tipoSimbolo.equals("real") && $v2.tipoSimbolo.equals("inteiro"))
+                $tipoSimbolo=$v1.tipoSimbolo;
+            else
+                $tipoSimbolo="incompativel";
+        }
+    
+    }
+    |
+    ;
 
 fator returns [String tipoSimbolo, String txt]
     @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
