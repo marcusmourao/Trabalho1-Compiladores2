@@ -293,8 +293,11 @@ outros_ident returns [ String txt ]
     |
     ;
 	
-dimensao : (ABRECOLCHETES exp_aritmetica FECHACOLCHETES)*
-         ;
+dimensao returns [String txt]
+@init {$txt="";}
+    : ABRECOLCHETES v1=exp_aritmetica FECHACOLCHETES dimensao {$txt= "[" + $v1.txt + "]";}
+    |
+    ;
 
 tipo[String tipo_registro] returns [String tipoSimbolo, List<String> nomes ]
 @init {$tipoSimbolo=""; $nomes = new ArrayList<String>();}
@@ -536,7 +539,7 @@ senao_opcional : SENAO comandos
 
 chamada_atribuicao[String primeiroIdent]
     : ABREPARENTESE argumentos_opcional FECHAPARENTESE
-                   | v1=outros_ident dimensao v2=ATRIBUICAO e1=expressao 
+                   | v1=outros_ident d1=dimensao v2=ATRIBUICAO e1=expressao 
                      {
                       if(pilhaDeTabelas.existeSimbolo($primeiroIdent+$v1.txt))
                       {
@@ -547,7 +550,7 @@ chamada_atribuicao[String primeiroIdent]
                        
                       }
                       else
-                          error+="Linha " + $v2.getLine() + ": atribuicao nao compativel para " + $primeiroIdent+$v1.txt +"\n";
+                          error+="Linha " + $v2.getLine() + ": atribuicao nao compativel para " + $primeiroIdent+$v1.txt+$d1.txt +"\n";
 
                       //error+="Linha " + $v2.getLine() + ": atribuicao nao compativel para " + $primeiroIdent+$v1.txt + "\n" + tipo1 +"\n" + tipo2 + "\n";
                       //String tipoExp = VerificadorDeTipos.verificaTipo($e1.ctx); 
@@ -584,9 +587,9 @@ op_unario : SUBTRACAO
           |
           ;
 
-exp_aritmetica returns [String tipoSimbolo]
-    @init{$tipoSimbolo="SEM_TIPO";}
-    : v1=termo outros_termos {$tipoSimbolo=$v1.tipoSimbolo;}
+exp_aritmetica returns [String tipoSimbolo, String txt]
+    @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
+    : v1=termo outros_termos {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
     ;
 
 op_multiplicacao : MULTIPLICACAO
@@ -597,27 +600,27 @@ op_adicao : SOMA
           | SUBTRACAO
           ;
 
-termo returns [String tipoSimbolo]
-    @init{$tipoSimbolo="SEM_TIPO";}
-    :	v1=fator outros_fatores {$tipoSimbolo=$v1.tipoSimbolo;}
+termo returns [String tipoSimbolo, String txt]
+    @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
+    :	v1=fator outros_fatores {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
     ;
 
 outros_termos : op_adicao termo outros_termos
               |
               ;
 
-fator returns [String tipoSimbolo]
-    @init{$tipoSimbolo="SEM_TIPO";}
-    : v1=parcela outras_parcelas {$tipoSimbolo=$v1.tipoSimbolo;}
+fator returns [String tipoSimbolo, String txt]
+    @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
+    : v1=parcela outras_parcelas {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
     ;
 
 outros_fatores : (op_multiplicacao fator)*
                ;
 
-parcela returns [String tipoSimbolo]
-    @init{$tipoSimbolo="SEM_TIPO";}
-    : op_unario v1=parcela_unario {$tipoSimbolo=$v1.tipoSimbolo;}
-    | v2=parcela_nao_unario {$tipoSimbolo=$v2.tipoSimbolo;}
+parcela returns [String tipoSimbolo, String txt]
+    @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
+    : op_unario v1=parcela_unario {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
+    | v2=parcela_nao_unario {$tipoSimbolo=$v2.tipoSimbolo; $txt=$v2.txt;}
     ;
 
 parcela_unario returns [String txt, int linha, String tipoSimbolo] 
@@ -651,8 +654,8 @@ parcela_unario returns [String txt, int linha, String tipoSimbolo]
             }
         }
                  
-      | NUM_INT  {$tipoSimbolo = "inteiro";}
-      | NUM_REAL {$tipoSimbolo = "real";}
+      | NUM_INT  {$tipoSimbolo = "inteiro"; $txt=$NUM_INT.getText();}
+      | NUM_REAL {$tipoSimbolo = "real"; $txt=$NUM_REAL.getText();}
       | ABREPARENTESE v7=expressao FECHAPARENTESE {$tipoSimbolo=$v7.tipoSimbolo;}
       ;
 
@@ -660,7 +663,7 @@ parcela_nao_unario returns [String txt, int linha, String tipoSimbolo]
 @init {$txt=""; $linha=-1; $tipoSimbolo="SEM_TIPO";}
     : OPERADOR_E v1=IDENT {$txt+=$v1.getText(); $linha = $v1.getLine();} v2=outros_ident {$txt+= $v2.txt; $tipoSimbolo = pilhaDeTabelas.getTipoDoSimbolo($txt);} dimensao
     
-                   | CADEIA {$tipoSimbolo = "literal";}
+                   | CADEIA {$tipoSimbolo = "literal"; $txt=$CADEIA.getText();}
                    ;
 
 outras_parcelas : (PORCENTAGEM parcela)*

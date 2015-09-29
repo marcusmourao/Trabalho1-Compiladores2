@@ -774,20 +774,16 @@ public class LAParser extends Parser {
 	}
 
 	public static class DimensaoContext extends ParserRuleContext {
-		public TerminalNode FECHACOLCHETES(int i) {
-			return getToken(LAParser.FECHACOLCHETES, i);
+		public String txt;
+		public Exp_aritmeticaContext v1;
+		public TerminalNode ABRECOLCHETES() { return getToken(LAParser.ABRECOLCHETES, 0); }
+		public DimensaoContext dimensao() {
+			return getRuleContext(DimensaoContext.class,0);
 		}
-		public List<TerminalNode> ABRECOLCHETES() { return getTokens(LAParser.ABRECOLCHETES); }
-		public List<Exp_aritmeticaContext> exp_aritmetica() {
-			return getRuleContexts(Exp_aritmeticaContext.class);
+		public Exp_aritmeticaContext exp_aritmetica() {
+			return getRuleContext(Exp_aritmeticaContext.class,0);
 		}
-		public List<TerminalNode> FECHACOLCHETES() { return getTokens(LAParser.FECHACOLCHETES); }
-		public Exp_aritmeticaContext exp_aritmetica(int i) {
-			return getRuleContext(Exp_aritmeticaContext.class,i);
-		}
-		public TerminalNode ABRECOLCHETES(int i) {
-			return getToken(LAParser.ABRECOLCHETES, i);
-		}
+		public TerminalNode FECHACOLCHETES() { return getToken(LAParser.FECHACOLCHETES, 0); }
 		public DimensaoContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -805,27 +801,26 @@ public class LAParser extends Parser {
 	public final DimensaoContext dimensao() throws RecognitionException {
 		DimensaoContext _localctx = new DimensaoContext(_ctx, getState());
 		enterRule(_localctx, 18, RULE_dimensao);
+		((DimensaoContext)_localctx).txt = "";
 		try {
-			int _alt;
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(198);
-			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,6,_ctx);
-			while ( _alt!=2 && _alt!=ATN.INVALID_ALT_NUMBER ) {
-				if ( _alt==1 ) {
-					{
-					{
-					setState(192); match(ABRECOLCHETES);
-					setState(193); exp_aritmetica();
-					setState(194); match(FECHACOLCHETES);
-					}
-					} 
+			setState(199);
+			switch ( getInterpreter().adaptivePredict(_input,6,_ctx) ) {
+			case 1:
+				enterOuterAlt(_localctx, 1);
+				{
+				setState(192); match(ABRECOLCHETES);
+				setState(193); ((DimensaoContext)_localctx).v1 = exp_aritmetica();
+				setState(194); match(FECHACOLCHETES);
+				setState(195); dimensao();
+				((DimensaoContext)_localctx).txt =  "[" + ((DimensaoContext)_localctx).v1.txt + "]";
 				}
-				setState(200);
-				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,6,_ctx);
-			}
+				break;
+
+			case 2:
+				enterOuterAlt(_localctx, 2);
+				{
+				}
+				break;
 			}
 		}
 		catch (RecognitionException re) {
@@ -2194,6 +2189,7 @@ public class LAParser extends Parser {
 	public static class Chamada_atribuicaoContext extends ParserRuleContext {
 		public String primeiroIdent;
 		public Outros_identContext v1;
+		public DimensaoContext d1;
 		public Token v2;
 		public ExpressaoContext e1;
 		public DimensaoContext dimensao() {
@@ -2247,7 +2243,7 @@ public class LAParser extends Parser {
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(403); ((Chamada_atribuicaoContext)_localctx).v1 = outros_ident();
-				setState(404); dimensao();
+				setState(404); ((Chamada_atribuicaoContext)_localctx).d1 = dimensao();
 				setState(405); ((Chamada_atribuicaoContext)_localctx).v2 = match(ATRIBUICAO);
 				setState(406); ((Chamada_atribuicaoContext)_localctx).e1 = expressao();
 
@@ -2260,7 +2256,7 @@ public class LAParser extends Parser {
 				                       
 				                      }
 				                      else
-				                          error+="Linha " + ((Chamada_atribuicaoContext)_localctx).v2.getLine() + ": atribuicao nao compativel para " + _localctx.primeiroIdent+((Chamada_atribuicaoContext)_localctx).v1.txt +"\n";
+				                          error+="Linha " + ((Chamada_atribuicaoContext)_localctx).v2.getLine() + ": atribuicao nao compativel para " + _localctx.primeiroIdent+((Chamada_atribuicaoContext)_localctx).v1.txt+((Chamada_atribuicaoContext)_localctx).d1.txt +"\n";
 
 				                      //error+="Linha " + ((Chamada_atribuicaoContext)_localctx).v2.getLine() + ": atribuicao nao compativel para " + _localctx.primeiroIdent+((Chamada_atribuicaoContext)_localctx).v1.txt + "\n" + tipo1 +"\n" + tipo2 + "\n";
 				                      //String tipoExp = VerificadorDeTipos.verificaTipo(((Chamada_atribuicaoContext)_localctx).e1); 
@@ -2694,6 +2690,7 @@ public class LAParser extends Parser {
 
 	public static class Exp_aritmeticaContext extends ParserRuleContext {
 		public String tipoSimbolo;
+		public String txt;
 		public TermoContext v1;
 		public TermoContext termo() {
 			return getRuleContext(TermoContext.class,0);
@@ -2718,13 +2715,13 @@ public class LAParser extends Parser {
 	public final Exp_aritmeticaContext exp_aritmetica() throws RecognitionException {
 		Exp_aritmeticaContext _localctx = new Exp_aritmeticaContext(_ctx, getState());
 		enterRule(_localctx, 76, RULE_exp_aritmetica);
-		((Exp_aritmeticaContext)_localctx).tipoSimbolo = "SEM_TIPO";
+		((Exp_aritmeticaContext)_localctx).tipoSimbolo = "SEM_TIPO"; ((Exp_aritmeticaContext)_localctx).txt = "";
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(449); ((Exp_aritmeticaContext)_localctx).v1 = termo();
 			setState(450); outros_termos();
-			((Exp_aritmeticaContext)_localctx).tipoSimbolo = ((Exp_aritmeticaContext)_localctx).v1.tipoSimbolo;
+			((Exp_aritmeticaContext)_localctx).tipoSimbolo = ((Exp_aritmeticaContext)_localctx).v1.tipoSimbolo; ((Exp_aritmeticaContext)_localctx).txt = ((Exp_aritmeticaContext)_localctx).v1.txt;
 			}
 		}
 		catch (RecognitionException re) {
@@ -2826,6 +2823,7 @@ public class LAParser extends Parser {
 
 	public static class TermoContext extends ParserRuleContext {
 		public String tipoSimbolo;
+		public String txt;
 		public FatorContext v1;
 		public FatorContext fator() {
 			return getRuleContext(FatorContext.class,0);
@@ -2850,13 +2848,13 @@ public class LAParser extends Parser {
 	public final TermoContext termo() throws RecognitionException {
 		TermoContext _localctx = new TermoContext(_ctx, getState());
 		enterRule(_localctx, 82, RULE_termo);
-		((TermoContext)_localctx).tipoSimbolo = "SEM_TIPO";
+		((TermoContext)_localctx).tipoSimbolo = "SEM_TIPO"; ((TermoContext)_localctx).txt = "";
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(457); ((TermoContext)_localctx).v1 = fator();
 			setState(458); outros_fatores();
-			((TermoContext)_localctx).tipoSimbolo = ((TermoContext)_localctx).v1.tipoSimbolo;
+			((TermoContext)_localctx).tipoSimbolo = ((TermoContext)_localctx).v1.tipoSimbolo; ((TermoContext)_localctx).txt = ((TermoContext)_localctx).v1.txt;
 			}
 		}
 		catch (RecognitionException re) {
@@ -2929,6 +2927,7 @@ public class LAParser extends Parser {
 
 	public static class FatorContext extends ParserRuleContext {
 		public String tipoSimbolo;
+		public String txt;
 		public ParcelaContext v1;
 		public ParcelaContext parcela() {
 			return getRuleContext(ParcelaContext.class,0);
@@ -2953,13 +2952,13 @@ public class LAParser extends Parser {
 	public final FatorContext fator() throws RecognitionException {
 		FatorContext _localctx = new FatorContext(_ctx, getState());
 		enterRule(_localctx, 86, RULE_fator);
-		((FatorContext)_localctx).tipoSimbolo = "SEM_TIPO";
+		((FatorContext)_localctx).tipoSimbolo = "SEM_TIPO"; ((FatorContext)_localctx).txt = "";
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(468); ((FatorContext)_localctx).v1 = parcela();
 			setState(469); outras_parcelas();
-			((FatorContext)_localctx).tipoSimbolo = ((FatorContext)_localctx).v1.tipoSimbolo;
+			((FatorContext)_localctx).tipoSimbolo = ((FatorContext)_localctx).v1.tipoSimbolo; ((FatorContext)_localctx).txt = ((FatorContext)_localctx).v1.txt;
 			}
 		}
 		catch (RecognitionException re) {
@@ -3036,6 +3035,7 @@ public class LAParser extends Parser {
 
 	public static class ParcelaContext extends ParserRuleContext {
 		public String tipoSimbolo;
+		public String txt;
 		public Parcela_unarioContext v1;
 		public Parcela_nao_unarioContext v2;
 		public Parcela_unarioContext parcela_unario() {
@@ -3064,7 +3064,7 @@ public class LAParser extends Parser {
 	public final ParcelaContext parcela() throws RecognitionException {
 		ParcelaContext _localctx = new ParcelaContext(_ctx, getState());
 		enterRule(_localctx, 90, RULE_parcela);
-		((ParcelaContext)_localctx).tipoSimbolo = "SEM_TIPO";
+		((ParcelaContext)_localctx).tipoSimbolo = "SEM_TIPO"; ((ParcelaContext)_localctx).txt = "";
 		try {
 			setState(487);
 			switch (_input.LA(1)) {
@@ -3078,7 +3078,7 @@ public class LAParser extends Parser {
 				{
 				setState(480); op_unario();
 				setState(481); ((ParcelaContext)_localctx).v1 = parcela_unario();
-				((ParcelaContext)_localctx).tipoSimbolo = ((ParcelaContext)_localctx).v1.tipoSimbolo;
+				((ParcelaContext)_localctx).tipoSimbolo = ((ParcelaContext)_localctx).v1.tipoSimbolo; ((ParcelaContext)_localctx).txt = ((ParcelaContext)_localctx).v1.txt;
 				}
 				break;
 			case OPERADOR_E:
@@ -3086,7 +3086,7 @@ public class LAParser extends Parser {
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(484); ((ParcelaContext)_localctx).v2 = parcela_nao_unario();
-				((ParcelaContext)_localctx).tipoSimbolo = ((ParcelaContext)_localctx).v2.tipoSimbolo;
+				((ParcelaContext)_localctx).tipoSimbolo = ((ParcelaContext)_localctx).v2.tipoSimbolo; ((ParcelaContext)_localctx).txt = ((ParcelaContext)_localctx).v2.txt;
 				}
 				break;
 			default:
@@ -3112,6 +3112,8 @@ public class LAParser extends Parser {
 		public Outros_identContext v2;
 		public Token v3;
 		public Chamada_partesContext v4;
+		public Token NUM_INT;
+		public Token NUM_REAL;
 		public ExpressaoContext v7;
 		public TerminalNode ABREPARENTESE() { return getToken(LAParser.ABREPARENTESE, 0); }
 		public DimensaoContext dimensao() {
@@ -3195,15 +3197,15 @@ public class LAParser extends Parser {
 			case NUM_INT:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(499); match(NUM_INT);
-				((Parcela_unarioContext)_localctx).tipoSimbolo =  "inteiro";
+				setState(499); ((Parcela_unarioContext)_localctx).NUM_INT = match(NUM_INT);
+				((Parcela_unarioContext)_localctx).tipoSimbolo =  "inteiro"; ((Parcela_unarioContext)_localctx).txt = ((Parcela_unarioContext)_localctx).NUM_INT.getText();
 				}
 				break;
 			case NUM_REAL:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(501); match(NUM_REAL);
-				((Parcela_unarioContext)_localctx).tipoSimbolo =  "real";
+				setState(501); ((Parcela_unarioContext)_localctx).NUM_REAL = match(NUM_REAL);
+				((Parcela_unarioContext)_localctx).tipoSimbolo =  "real"; ((Parcela_unarioContext)_localctx).txt = ((Parcela_unarioContext)_localctx).NUM_REAL.getText();
 				}
 				break;
 			case ABREPARENTESE:
@@ -3236,6 +3238,7 @@ public class LAParser extends Parser {
 		public String tipoSimbolo;
 		public Token v1;
 		public Outros_identContext v2;
+		public Token CADEIA;
 		public DimensaoContext dimensao() {
 			return getRuleContext(DimensaoContext.class,0);
 		}
@@ -3280,8 +3283,8 @@ public class LAParser extends Parser {
 			case CADEIA:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(517); match(CADEIA);
-				((Parcela_nao_unarioContext)_localctx).tipoSimbolo =  "literal";
+				setState(517); ((Parcela_nao_unarioContext)_localctx).CADEIA = match(CADEIA);
+				((Parcela_nao_unarioContext)_localctx).tipoSimbolo =  "literal"; ((Parcela_nao_unarioContext)_localctx).txt = ((Parcela_nao_unarioContext)_localctx).CADEIA.getText();
 				}
 				break;
 			default:
@@ -4067,60 +4070,60 @@ public class LAParser extends Parser {
 		"\3\5\3\5\3\5\5\5\u009e\n\5\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\7\3\7\3\7\3\7"+
 		"\7\7\u00ab\n\7\f\7\16\7\u00ae\13\7\3\b\3\b\3\b\3\b\3\b\3\b\3\t\7\t\u00b7"+
 		"\n\t\f\t\16\t\u00ba\13\t\3\n\3\n\3\n\3\n\3\n\5\n\u00c1\n\n\3\13\3\13\3"+
-		"\13\3\13\7\13\u00c7\n\13\f\13\16\13\u00ca\13\13\3\f\3\f\3\f\3\f\3\f\3"+
-		"\f\5\f\u00d2\n\f\3\r\3\r\3\r\3\r\3\r\3\r\5\r\u00da\n\r\3\16\3\16\3\16"+
-		"\3\16\3\16\5\16\u00e1\n\16\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\17\5\17"+
-		"\u00eb\n\17\3\20\3\20\3\20\3\20\3\20\5\20\u00f2\n\20\3\21\3\21\3\21\3"+
-		"\21\3\22\3\22\3\23\3\23\3\23\3\23\3\23\3\23\3\23\3\23\3\24\3\24\3\24\3"+
-		"\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3"+
-		"\24\3\24\3\24\3\24\3\24\3\24\3\24\5\24\u011a\n\24\3\25\3\25\5\25\u011e"+
-		"\n\25\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\27\3\27\5\27\u012a\n\27"+
-		"\3\30\3\30\3\30\5\30\u012f\n\30\3\31\7\31\u0132\n\31\f\31\16\31\u0135"+
-		"\13\31\3\32\3\32\3\32\3\33\7\33\u013b\n\33\f\33\16\33\u013e\13\33\3\34"+
+		"\13\3\13\3\13\3\13\3\13\5\13\u00ca\n\13\3\f\3\f\3\f\3\f\3\f\3\f\5\f\u00d2"+
+		"\n\f\3\r\3\r\3\r\3\r\3\r\3\r\5\r\u00da\n\r\3\16\3\16\3\16\3\16\3\16\5"+
+		"\16\u00e1\n\16\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\17\5\17\u00eb\n\17"+
+		"\3\20\3\20\3\20\3\20\3\20\5\20\u00f2\n\20\3\21\3\21\3\21\3\21\3\22\3\22"+
+		"\3\23\3\23\3\23\3\23\3\23\3\23\3\23\3\23\3\24\3\24\3\24\3\24\3\24\3\24"+
+		"\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24"+
+		"\3\24\3\24\3\24\3\24\5\24\u011a\n\24\3\25\3\25\5\25\u011e\n\25\3\26\3"+
+		"\26\3\26\3\26\3\26\3\26\3\26\3\26\3\27\3\27\5\27\u012a\n\27\3\30\3\30"+
+		"\3\30\5\30\u012f\n\30\3\31\7\31\u0132\n\31\f\31\16\31\u0135\13\31\3\32"+
+		"\3\32\3\32\3\33\7\33\u013b\n\33\f\33\16\33\u013e\13\33\3\34\3\34\3\34"+
 		"\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34"+
 		"\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34"+
 		"\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34"+
 		"\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34"+
-		"\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\5\34\u0183\n\34\3\35"+
-		"\3\35\3\35\3\35\3\35\3\35\5\35\u018b\n\35\3\36\3\36\3\36\5\36\u0190\n"+
-		"\36\3\37\3\37\3\37\3\37\3\37\3\37\3\37\3\37\3\37\3\37\5\37\u019c\n\37"+
-		"\3 \3 \3 \3 \5 \u01a2\n \3!\3!\3!\3!\3!\3\"\3\"\5\"\u01ab\n\"\3#\3#\3"+
-		"#\3$\3$\3$\5$\u01b3\n$\3%\3%\3%\3%\3&\3&\3&\3&\3&\5&\u01be\n&\3\'\3\'"+
-		"\5\'\u01c2\n\'\3(\3(\3(\3(\3)\3)\3*\3*\3+\3+\3+\3+\3,\3,\3,\3,\3,\5,\u01d5"+
-		"\n,\3-\3-\3-\3-\3.\3.\3.\7.\u01de\n.\f.\16.\u01e1\13.\3/\3/\3/\3/\3/\3"+
-		"/\3/\5/\u01ea\n/\3\60\3\60\3\60\3\60\3\60\3\60\3\60\3\60\3\60\3\60\3\60"+
-		"\3\60\3\60\3\60\3\60\3\60\3\60\3\60\3\60\5\60\u01ff\n\60\3\61\3\61\3\61"+
-		"\3\61\3\61\3\61\3\61\3\61\3\61\5\61\u020a\n\61\3\62\3\62\7\62\u020e\n"+
-		"\62\f\62\16\62\u0211\13\62\3\63\3\63\3\63\3\63\3\63\3\63\3\63\3\63\3\63"+
-		"\3\63\5\63\u021d\n\63\3\64\3\64\3\64\3\64\3\65\3\65\3\65\3\65\3\65\5\65"+
-		"\u0228\n\65\3\66\3\66\3\66\3\66\3\66\3\66\3\66\3\66\3\66\3\66\3\66\3\66"+
-		"\5\66\u0236\n\66\3\67\3\67\3\67\3\67\38\38\58\u023e\n8\39\39\39\39\3:"+
-		"\3:\7:\u0246\n:\f:\16:\u0249\13:\3;\3;\7;\u024d\n;\f;\16;\u0250\13;\3"+
-		"<\3<\3<\3<\3=\3=\3=\3=\3=\3=\3=\5=\u025d\n=\3=\2\2>\2\4\6\b\n\f\16\20"+
-		"\22\24\26\30\32\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJLNPRTVXZ\\^`bdfhj"+
-		"lnprtvx\2\5\5\2\22\23>>@A\4\2//\61\61\3\2;<\u025e\2z\3\2\2\2\4\u0085\3"+
-		"\2\2\2\6\u0089\3\2\2\2\b\u009d\3\2\2\2\n\u009f\3\2\2\2\f\u00ac\3\2\2\2"+
-		"\16\u00af\3\2\2\2\20\u00b8\3\2\2\2\22\u00c0\3\2\2\2\24\u00c8\3\2\2\2\26"+
-		"\u00d1\3\2\2\2\30\u00d9\3\2\2\2\32\u00e0\3\2\2\2\34\u00ea\3\2\2\2\36\u00f1"+
-		"\3\2\2\2 \u00f3\3\2\2\2\"\u00f7\3\2\2\2$\u00f9\3\2\2\2&\u0119\3\2\2\2"+
-		"(\u011d\3\2\2\2*\u011f\3\2\2\2,\u0129\3\2\2\2.\u012e\3\2\2\2\60\u0133"+
-		"\3\2\2\2\62\u0136\3\2\2\2\64\u013c\3\2\2\2\66\u0182\3\2\2\28\u018a\3\2"+
-		"\2\2:\u018f\3\2\2\2<\u019b\3\2\2\2>\u01a1\3\2\2\2@\u01a3\3\2\2\2B\u01aa"+
-		"\3\2\2\2D\u01ac\3\2\2\2F\u01b2\3\2\2\2H\u01b4\3\2\2\2J\u01bd\3\2\2\2L"+
-		"\u01c1\3\2\2\2N\u01c3\3\2\2\2P\u01c7\3\2\2\2R\u01c9\3\2\2\2T\u01cb\3\2"+
-		"\2\2V\u01d4\3\2\2\2X\u01d6\3\2\2\2Z\u01df\3\2\2\2\\\u01e9\3\2\2\2^\u01fe"+
-		"\3\2\2\2`\u0209\3\2\2\2b\u020f\3\2\2\2d\u021c\3\2\2\2f\u021e\3\2\2\2h"+
-		"\u0227\3\2\2\2j\u0235\3\2\2\2l\u0237\3\2\2\2n\u023d\3\2\2\2p\u023f\3\2"+
-		"\2\2r\u0247\3\2\2\2t\u024e\3\2\2\2v\u0251\3\2\2\2x\u025c\3\2\2\2z{\b\2"+
-		"\1\2{|\5\4\3\2|}\7\3\2\2}~\5\62\32\2~\177\7\4\2\2\177\u0080\b\2\1\2\u0080"+
-		"\3\3\2\2\2\u0081\u0082\5\6\4\2\u0082\u0083\5\4\3\2\u0083\u0086\3\2\2\2"+
-		"\u0084\u0086\3\2\2\2\u0085\u0081\3\2\2\2\u0085\u0084\3\2\2\2\u0086\5\3"+
-		"\2\2\2\u0087\u008a\5\b\5\2\u0088\u008a\5&\24\2\u0089\u0087\3\2\2\2\u0089"+
-		"\u0088\3\2\2\2\u008a\7\3\2\2\2\u008b\u008c\7\5\2\2\u008c\u008d\5\n\6\2"+
-		"\u008d\u008e\b\5\1\2\u008e\u009e\3\2\2\2\u008f\u0090\7\6\2\2\u0090\u0091"+
-		"\7?\2\2\u0091\u0092\7\b\2\2\u0092\u0093\5\34\17\2\u0093\u0094\7\66\2\2"+
-		"\u0094\u0095\5\"\22\2\u0095\u0096\b\5\1\2\u0096\u009e\3\2\2\2\u0097\u0098"+
-		"\7\7\2\2\u0098\u0099\7?\2\2\u0099\u009a\7\b\2\2\u009a\u009b\5\26\f\2\u009b"+
+		"\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\34\5\34\u0183\n\34\3\35\3\35\3\35"+
+		"\3\35\3\35\3\35\5\35\u018b\n\35\3\36\3\36\3\36\5\36\u0190\n\36\3\37\3"+
+		"\37\3\37\3\37\3\37\3\37\3\37\3\37\3\37\3\37\5\37\u019c\n\37\3 \3 \3 \3"+
+		" \5 \u01a2\n \3!\3!\3!\3!\3!\3\"\3\"\5\"\u01ab\n\"\3#\3#\3#\3$\3$\3$\5"+
+		"$\u01b3\n$\3%\3%\3%\3%\3&\3&\3&\3&\3&\5&\u01be\n&\3\'\3\'\5\'\u01c2\n"+
+		"\'\3(\3(\3(\3(\3)\3)\3*\3*\3+\3+\3+\3+\3,\3,\3,\3,\3,\5,\u01d5\n,\3-\3"+
+		"-\3-\3-\3.\3.\3.\7.\u01de\n.\f.\16.\u01e1\13.\3/\3/\3/\3/\3/\3/\3/\5/"+
+		"\u01ea\n/\3\60\3\60\3\60\3\60\3\60\3\60\3\60\3\60\3\60\3\60\3\60\3\60"+
+		"\3\60\3\60\3\60\3\60\3\60\3\60\3\60\5\60\u01ff\n\60\3\61\3\61\3\61\3\61"+
+		"\3\61\3\61\3\61\3\61\3\61\5\61\u020a\n\61\3\62\3\62\7\62\u020e\n\62\f"+
+		"\62\16\62\u0211\13\62\3\63\3\63\3\63\3\63\3\63\3\63\3\63\3\63\3\63\3\63"+
+		"\5\63\u021d\n\63\3\64\3\64\3\64\3\64\3\65\3\65\3\65\3\65\3\65\5\65\u0228"+
+		"\n\65\3\66\3\66\3\66\3\66\3\66\3\66\3\66\3\66\3\66\3\66\3\66\3\66\5\66"+
+		"\u0236\n\66\3\67\3\67\3\67\3\67\38\38\58\u023e\n8\39\39\39\39\3:\3:\7"+
+		":\u0246\n:\f:\16:\u0249\13:\3;\3;\7;\u024d\n;\f;\16;\u0250\13;\3<\3<\3"+
+		"<\3<\3=\3=\3=\3=\3=\3=\3=\5=\u025d\n=\3=\2\2>\2\4\6\b\n\f\16\20\22\24"+
+		"\26\30\32\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJLNPRTVXZ\\^`bdfhjlnprtv"+
+		"x\2\5\5\2\22\23>>@A\4\2//\61\61\3\2;<\u025e\2z\3\2\2\2\4\u0085\3\2\2\2"+
+		"\6\u0089\3\2\2\2\b\u009d\3\2\2\2\n\u009f\3\2\2\2\f\u00ac\3\2\2\2\16\u00af"+
+		"\3\2\2\2\20\u00b8\3\2\2\2\22\u00c0\3\2\2\2\24\u00c9\3\2\2\2\26\u00d1\3"+
+		"\2\2\2\30\u00d9\3\2\2\2\32\u00e0\3\2\2\2\34\u00ea\3\2\2\2\36\u00f1\3\2"+
+		"\2\2 \u00f3\3\2\2\2\"\u00f7\3\2\2\2$\u00f9\3\2\2\2&\u0119\3\2\2\2(\u011d"+
+		"\3\2\2\2*\u011f\3\2\2\2,\u0129\3\2\2\2.\u012e\3\2\2\2\60\u0133\3\2\2\2"+
+		"\62\u0136\3\2\2\2\64\u013c\3\2\2\2\66\u0182\3\2\2\28\u018a\3\2\2\2:\u018f"+
+		"\3\2\2\2<\u019b\3\2\2\2>\u01a1\3\2\2\2@\u01a3\3\2\2\2B\u01aa\3\2\2\2D"+
+		"\u01ac\3\2\2\2F\u01b2\3\2\2\2H\u01b4\3\2\2\2J\u01bd\3\2\2\2L\u01c1\3\2"+
+		"\2\2N\u01c3\3\2\2\2P\u01c7\3\2\2\2R\u01c9\3\2\2\2T\u01cb\3\2\2\2V\u01d4"+
+		"\3\2\2\2X\u01d6\3\2\2\2Z\u01df\3\2\2\2\\\u01e9\3\2\2\2^\u01fe\3\2\2\2"+
+		"`\u0209\3\2\2\2b\u020f\3\2\2\2d\u021c\3\2\2\2f\u021e\3\2\2\2h\u0227\3"+
+		"\2\2\2j\u0235\3\2\2\2l\u0237\3\2\2\2n\u023d\3\2\2\2p\u023f\3\2\2\2r\u0247"+
+		"\3\2\2\2t\u024e\3\2\2\2v\u0251\3\2\2\2x\u025c\3\2\2\2z{\b\2\1\2{|\5\4"+
+		"\3\2|}\7\3\2\2}~\5\62\32\2~\177\7\4\2\2\177\u0080\b\2\1\2\u0080\3\3\2"+
+		"\2\2\u0081\u0082\5\6\4\2\u0082\u0083\5\4\3\2\u0083\u0086\3\2\2\2\u0084"+
+		"\u0086\3\2\2\2\u0085\u0081\3\2\2\2\u0085\u0084\3\2\2\2\u0086\5\3\2\2\2"+
+		"\u0087\u008a\5\b\5\2\u0088\u008a\5&\24\2\u0089\u0087\3\2\2\2\u0089\u0088"+
+		"\3\2\2\2\u008a\7\3\2\2\2\u008b\u008c\7\5\2\2\u008c\u008d\5\n\6\2\u008d"+
+		"\u008e\b\5\1\2\u008e\u009e\3\2\2\2\u008f\u0090\7\6\2\2\u0090\u0091\7?"+
+		"\2\2\u0091\u0092\7\b\2\2\u0092\u0093\5\34\17\2\u0093\u0094\7\66\2\2\u0094"+
+		"\u0095\5\"\22\2\u0095\u0096\b\5\1\2\u0096\u009e\3\2\2\2\u0097\u0098\7"+
+		"\7\2\2\u0098\u0099\7?\2\2\u0099\u009a\7\b\2\2\u009a\u009b\5\26\f\2\u009b"+
 		"\u009c\b\5\1\2\u009c\u009e\3\2\2\2\u009d\u008b\3\2\2\2\u009d\u008f\3\2"+
 		"\2\2\u009d\u0097\3\2\2\2\u009e\t\3\2\2\2\u009f\u00a0\7?\2\2\u00a0\u00a1"+
 		"\5\24\13\2\u00a1\u00a2\5\f\7\2\u00a2\u00a3\7\b\2\2\u00a3\u00a4\5\26\f"+
@@ -4134,16 +4137,16 @@ public class LAParser extends Parser {
 		"\2\u00bb\u00bc\7\r\2\2\u00bc\u00bd\5\16\b\2\u00bd\u00be\b\n\1\2\u00be"+
 		"\u00c1\3\2\2\2\u00bf\u00c1\3\2\2\2\u00c0\u00bb\3\2\2\2\u00c0\u00bf\3\2"+
 		"\2\2\u00c1\23\3\2\2\2\u00c2\u00c3\7\t\2\2\u00c3\u00c4\5N(\2\u00c4\u00c5"+
-		"\7\n\2\2\u00c5\u00c7\3\2\2\2\u00c6\u00c2\3\2\2\2\u00c7\u00ca\3\2\2\2\u00c8"+
-		"\u00c6\3\2\2\2\u00c8\u00c9\3\2\2\2\u00c9\25\3\2\2\2\u00ca\u00c8\3\2\2"+
-		"\2\u00cb\u00cc\5$\23\2\u00cc\u00cd\b\f\1\2\u00cd\u00d2\3\2\2\2\u00ce\u00cf"+
-		"\5 \21\2\u00cf\u00d0\b\f\1\2\u00d0\u00d2\3\2\2\2\u00d1\u00cb\3\2\2\2\u00d1"+
-		"\u00ce\3\2\2\2\u00d2\27\3\2\2\2\u00d3\u00d4\7\13\2\2\u00d4\u00d5\5\16"+
-		"\b\2\u00d5\u00d6\5\30\r\2\u00d6\u00d7\b\r\1\2\u00d7\u00da\3\2\2\2\u00d8"+
-		"\u00da\3\2\2\2\u00d9\u00d3\3\2\2\2\u00d9\u00d8\3\2\2\2\u00da\31\3\2\2"+
-		"\2\u00db\u00dc\5\n\6\2\u00dc\u00dd\5\32\16\2\u00dd\u00de\b\16\1\2\u00de"+
-		"\u00e1\3\2\2\2\u00df\u00e1\3\2\2\2\u00e0\u00db\3\2\2\2\u00e0\u00df\3\2"+
-		"\2\2\u00e1\33\3\2\2\2\u00e2\u00e3\7\16\2\2\u00e3\u00eb\b\17\1\2\u00e4"+
+		"\7\n\2\2\u00c5\u00c6\5\24\13\2\u00c6\u00c7\b\13\1\2\u00c7\u00ca\3\2\2"+
+		"\2\u00c8\u00ca\3\2\2\2\u00c9\u00c2\3\2\2\2\u00c9\u00c8\3\2\2\2\u00ca\25"+
+		"\3\2\2\2\u00cb\u00cc\5$\23\2\u00cc\u00cd\b\f\1\2\u00cd\u00d2\3\2\2\2\u00ce"+
+		"\u00cf\5 \21\2\u00cf\u00d0\b\f\1\2\u00d0\u00d2\3\2\2\2\u00d1\u00cb\3\2"+
+		"\2\2\u00d1\u00ce\3\2\2\2\u00d2\27\3\2\2\2\u00d3\u00d4\7\13\2\2\u00d4\u00d5"+
+		"\5\16\b\2\u00d5\u00d6\5\30\r\2\u00d6\u00d7\b\r\1\2\u00d7\u00da\3\2\2\2"+
+		"\u00d8\u00da\3\2\2\2\u00d9\u00d3\3\2\2\2\u00d9\u00d8\3\2\2\2\u00da\31"+
+		"\3\2\2\2\u00db\u00dc\5\n\6\2\u00dc\u00dd\5\32\16\2\u00dd\u00de\b\16\1"+
+		"\2\u00de\u00e1\3\2\2\2\u00df\u00e1\3\2\2\2\u00e0\u00db\3\2\2\2\u00e0\u00df"+
+		"\3\2\2\2\u00e1\33\3\2\2\2\u00e2\u00e3\7\16\2\2\u00e3\u00eb\b\17\1\2\u00e4"+
 		"\u00e5\7\17\2\2\u00e5\u00eb\b\17\1\2\u00e6\u00e7\7\20\2\2\u00e7\u00eb"+
 		"\b\17\1\2\u00e8\u00e9\7\21\2\2\u00e9\u00eb\b\17\1\2\u00ea\u00e2\3\2\2"+
 		"\2\u00ea\u00e4\3\2\2\2\u00ea\u00e6\3\2\2\2\u00ea\u00e8\3\2\2\2\u00eb\35"+
@@ -4262,7 +4265,7 @@ public class LAParser extends Parser {
 		"\u025d\b=\1\2\u0257\u0258\7\23\2\2\u0258\u025d\b=\1\2\u0259\u025a\5f\64"+
 		"\2\u025a\u025b\b=\1\2\u025b\u025d\3\2\2\2\u025c\u0255\3\2\2\2\u025c\u0257"+
 		"\3\2\2\2\u025c\u0259\3\2\2\2\u025dy\3\2\2\2*\u0085\u0089\u009d\u00ac\u00b8"+
-		"\u00c0\u00c8\u00d1\u00d9\u00e0\u00ea\u00f1\u0119\u011d\u0129\u012e\u0133"+
+		"\u00c0\u00c9\u00d1\u00d9\u00e0\u00ea\u00f1\u0119\u011d\u0129\u012e\u0133"+
 		"\u013c\u0182\u018a\u018f\u019b\u01a1\u01aa\u01b2\u01bd\u01c1\u01d4\u01df"+
 		"\u01e9\u01fe\u0209\u020f\u021c\u0227\u0235\u023d\u0247\u024e\u025c";
 	public static final ATN _ATN =
