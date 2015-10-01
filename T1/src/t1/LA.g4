@@ -170,67 +170,66 @@ decl_local_global : decl_local
                   | declaracao_global
                   ;
 
-decl_local : DECLARE variavel
-           {
-            for (String s : $variavel.nomes)
-            {
-                if(pilhaDeTabelas.topo().existeSimbolo(s))
-                    error += "Linha " + $variavel.linha + ": identificador "+s+" ja declarado anteriormente\n" ;
-		    //error+=pilhaDeTabelas.topo().getEscopo();
-		else{
-		    if(TabelaDeTipos.existeSimbolo($variavel.tipoSimbolo))
+decl_local 
+    : DECLARE variavel
+    {
+        for (String s : $variavel.nomes)
+        {
+            if(pilhaDeTabelas.topo().existeSimbolo(s))
+                error += "Linha " + $variavel.linha + ": identificador "+s+" ja declarado anteriormente\n" ;
+		//error+=pilhaDeTabelas.topo().getEscopo();
+            else{
+	        if(TabelaDeTipos.existeSimbolo($variavel.tipoSimbolo))
+                {
+                    pilhaDeTabelas.topo().adicionarSimbolo(s, $variavel.tipoSimbolo);
+                    if(TabelasDeRegistros.existeTabela($variavel.tipoSimbolo)!=null)
                     {
-                        pilhaDeTabelas.topo().adicionarSimbolo(s, $variavel.tipoSimbolo);
-                        if(TabelasDeRegistros.existeTabela($variavel.tipoSimbolo)!=null)
+                        TabelaDeSimbolos tabela_registro = TabelasDeRegistros.existeTabela($variavel.tipoSimbolo);
+                        for (EntradaTabelaDeSimbolos t : tabela_registro.getSimbolos2())
                         {
-			    TabelaDeSimbolos tabela_registro = TabelasDeRegistros.existeTabela($variavel.tipoSimbolo);
-                                for (EntradaTabelaDeSimbolos t : tabela_registro.getSimbolos2())
-                                {
-                                    pilhaDeTabelas.topo().adicionarSimbolo(s+"."+t.getNome(), t.getTipo());
-                                }
+                            pilhaDeTabelas.topo().adicionarSimbolo(s+"."+t.getNome(), t.getTipo());
                         }
-                        else
+                    }
+                    else
+                    {
+                        if(TabelasDeRegistros.existeTabela("registro")!=null)
                         {
-                         if(TabelasDeRegistros.existeTabela("registro")!=null){
-                             TabelaDeSimbolos tabela_registro = TabelasDeRegistros.existeTabela("registro");
-                                for (EntradaTabelaDeSimbolos t : tabela_registro.getSimbolos2())
-                                {
-                                    pilhaDeTabelas.topo().adicionarSimbolo(s+"."+t.getNome(), t.getTipo());
-                                }
+                            TabelaDeSimbolos tabela_registro = TabelasDeRegistros.existeTabela("registro");
+                            for (EntradaTabelaDeSimbolos t : tabela_registro.getSimbolos2())
+                            {
+                                pilhaDeTabelas.topo().adicionarSimbolo(s+"."+t.getNome(), t.getTipo());
+                            }
                          }
-                        }
-                        
-                     }
-                     else
-                     {
-                         error += "Linha " + $variavel.linha + ": tipo "+$variavel.tipoSimbolo+" nao declarado\n" ;
-                         pilhaDeTabelas.topo().adicionarSimbolo(s, $variavel.tipoSimbolo);
-                     }
-                 }
+                    }   
+                }
+                else
+                {
+                    error += "Linha " + $variavel.linha + ": tipo "+$variavel.tipoSimbolo+" nao declarado\n" ;
+                    pilhaDeTabelas.topo().adicionarSimbolo(s, $variavel.tipoSimbolo);
+                }
             }
-           }
-           | CONSTANTE v1=IDENT DOISPONTOS v2=tipo_basico IGUAL valor_constante
-           {
-               if(pilhaDeTabelas.topo().existeSimbolo($v1.getText()))
-                   error += "Linha " + $v1.getLine() + ": identificador "+$v1.getText()+" ja declarado anteriormente\n" ;
-               else
-                   pilhaDeTabelas.topo().adicionarSimbolo($v1.getText(), $v2.tipoSimbolo);
-           }
-           | TIPO v1=IDENT DOISPONTOS v3=tipo[$v1.getText()]
-           {
-               if(pilhaDeTabelas.topo().existeSimbolo($v1.getText()))
-                   error += "Linha " + $v1.getLine() + ": identificador "+$v1.getText()+" ja declarado anteriormente\n" ;
-               else
-               {
-                   pilhaDeTabelas.topo().adicionarSimbolo($v1.getText(), $v3.tipoSimbolo);
-                   TabelaDeTipos.adicionarSimbolo($v1.getText(), $v3.tipoSimbolo);
-               }
-           }
-           ;
+        }
+    }
+    | CONSTANTE v1=IDENT DOISPONTOS v2=tipo_basico IGUAL valor_constante
+    {
+        if(pilhaDeTabelas.topo().existeSimbolo($v1.getText()))
+            error += "Linha " + $v1.getLine() + ": identificador "+$v1.getText()+" ja declarado anteriormente\n" ;
+        else
+            pilhaDeTabelas.topo().adicionarSimbolo($v1.getText(), $v2.tipoSimbolo);
+    }
+    | TIPO v1=IDENT DOISPONTOS v3=tipo[$v1.getText()]
+    {
+        if(pilhaDeTabelas.topo().existeSimbolo($v1.getText()))
+            error += "Linha " + $v1.getLine() + ": identificador "+$v1.getText()+" ja declarado anteriormente\n" ;
+        else
+        {
+            pilhaDeTabelas.topo().adicionarSimbolo($v1.getText(), $v3.tipoSimbolo);
+            TabelaDeTipos.adicionarSimbolo($v1.getText(), $v3.tipoSimbolo);
+        }
+    }
+    ;
 
-
-
-variavel returns[ List<String> nomes, String tipoSimbolo, int linha ]
+variavel returns[List<String> nomes, String tipoSimbolo, int linha]
 @init {$nomes = new ArrayList<String>(); $tipoSimbolo=""; $linha=-1;}
     : v1=IDENT dimensao v2=mais_var DOISPONTOS m3=tipo[$tipoSimbolo] 
     {    
@@ -243,19 +242,8 @@ variavel returns[ List<String> nomes, String tipoSimbolo, int linha ]
             $linha = $v1.getLine();
         else
             $linha = $v2.linha;
-        
-        /*if($m3.nomes.size()>0)
-        {
-          for(String s : $nomes)
-          {
-            for(String t: $m3.nomes)
-            {
-               pilhaDeTabelas.topo().adicionarSimbolo(s+t, $m3.tipoSimbolo);
-            }
-          }
-        }*/
-     }
-     ;
+    }
+    ;
 
 mais_var returns[ List<String> nomes, int linha ]
 @init { $nomes = new ArrayList<String>(); $linha=-1; }
@@ -270,7 +258,6 @@ mais_var returns[ List<String> nomes, int linha ]
         {
             error+="Linha " + $v1.getLine() + ": identificador " + $v1.getText() + " ja declarado anteriormente\n";
         }
-        
      }
     dimensao)*
     ;
@@ -284,8 +271,9 @@ identificador returns [ String txt, int linha ]
     }
     ;
 
-ponteiros_opcionais : EXPOENTE*
-                    ;
+ponteiros_opcionais 
+    : EXPOENTE*
+    ;
 
 outros_ident returns [ String txt ]
 @init {$txt="";}
@@ -348,15 +336,16 @@ tipo_estendido returns [String tipoSimbolo]
     : ponteiros_opcionais v1=tipo_basico_ident {$tipoSimbolo = $v1.tipoSimbolo;}
     ;
 
-valor_constante : CADEIA
-                | NUM_INT
-                | NUM_REAL
-                | VERDADEIRO
-                | FALSO
-                ;
+valor_constante 
+    : CADEIA
+    | NUM_INT
+    | NUM_REAL
+    | VERDADEIRO
+    | FALSO
+    ;
 
 registro [String nome_registro] returns[String typeRegistro, List<String> nomes]
-    @init {$nomes = new ArrayList<String>();}
+@init {$nomes = new ArrayList<String>();}
     : REGISTRO 
     {
         pilhaDeTabelas.empilhar(new TabelaDeSimbolos("registro"));
@@ -364,7 +353,6 @@ registro [String nome_registro] returns[String typeRegistro, List<String> nomes]
             TabelasDeRegistros.empilhar(new TabelaDeSimbolos($nome_registro));
         else
             TabelasDeRegistros.empilhar(new TabelaDeSimbolos("registro"));
-
     }
       
     variavel mais_variaveis
@@ -422,11 +410,12 @@ declaracao_global
     }
     ;
 
-parametros_opcional : parametro
-                    |
-                    ;
+parametros_opcional 
+    : parametro
+    |
+    ;
 
-parametro 
+parametro
     : var_opcional v1=identificador v3=mais_ident DOISPONTOS v2=tipo_estendido mais_parametros
     {
         if(pilhaDeTabelas.topo().existeSimbolo($v1.txt))
@@ -443,26 +432,31 @@ parametro
                      pilhaDeTabelas.topo().adicionarSimbolo($v1.txt+t, $v2.tipoSimbolo);
                  }
              }
-         }                    
+         }
+        
      }
      ;
 
-var_opcional : VAR
-             |
-             ;
+var_opcional 
+    : VAR
+    |
+    ;
 
-mais_parametros: VIRGULA parametro
-               |
-               ;
+mais_parametros
+    : VIRGULA v1=parametro
+    | 
+    ;
 
-declaracoes_locais: decl_local*
-                  ;
+declaracoes_locais
+    : decl_local*
+    ;
 
 corpo : declaracoes_locais comandos
       ;
 
-comandos : cmd*
-         ;
+comandos 
+    : cmd*
+    ;
 
 cmd returns [ String tipoCmd ]
     : LEIA ABREPARENTESE v10=identificador v11=mais_ident 
@@ -473,9 +467,7 @@ cmd returns [ String tipoCmd ]
          {
              if(!pilhaDeTabelas.existeSimbolo(s))
                  error+="Linha " + $v10.linha + ": identificador " + s + " nao declarado\n";
-         }
-      
-        
+         }    
     }
     FECHAPARENTESE { $tipoCmd = "leia"; }
     | ESCREVA ABREPARENTESE expressao mais_expressao FECHAPARENTESE { $tipoCmd = "escreva"; }
@@ -533,66 +525,73 @@ mais_expressao returns[String tipoSimbolo]
     |
     ;
 
-senao_opcional : SENAO comandos
-               |
-               ;
+senao_opcional 
+    : SENAO comandos
+    |
+    ;
 
 chamada_atribuicao[String primeiroIdent]
     : ABREPARENTESE argumentos_opcional FECHAPARENTESE
-                   | v1=outros_ident d1=dimensao v2=ATRIBUICAO e1=expressao 
-                     {
-                      if(pilhaDeTabelas.existeSimbolo($primeiroIdent+$v1.txt))
-                      {
-                      String tipo1 = pilhaDeTabelas.topo().GetTipoSimbolo($primeiroIdent+$v1.txt);
-                      String tipo2 = $e1.tipoSimbolo;
-                      if(tipo1.equals(tipo2) || tipo1.equals("inteiro") && tipo2.equals("real") || tipo1.equals("real") && tipo2.equals("inteiro"))
-                      {
-                       
-                      }
-                      else
-                          error+="Linha " + $v2.getLine() + ": atribuicao nao compativel para " + $primeiroIdent+$v1.txt+$d1.txt +"\n";
-
+    | v1=outros_ident d1=dimensao v2=ATRIBUICAO e1=expressao 
+    {
+        if(pilhaDeTabelas.existeSimbolo($primeiroIdent+$v1.txt))
+        {
+            String tipo1 = pilhaDeTabelas.topo().GetTipoSimbolo($primeiroIdent+$v1.txt);
+            String tipo2 = $e1.tipoSimbolo;
+            if(tipo1.equals(tipo2) || tipo1.equals("inteiro") && tipo2.equals("real") || tipo1.equals("real") && tipo2.equals("inteiro"))
+            {
+            }
+            else
+                error+="Linha " + $v2.getLine() + ": atribuicao nao compativel para " + $primeiroIdent+$v1.txt+$d1.txt +"\n";
                       //error+="Linha " + $v2.getLine() + ": atribuicao nao compativel para " + $primeiroIdent+$v1.txt + "\n" + tipo1 +"\n" + tipo2 + "\n";
                       //String tipoExp = VerificadorDeTipos.verificaTipo($e1.ctx); 
-                      }
-                     }
-                   ;
+        }
+    }
+    ;
 
-argumentos_opcional : expressao mais_expressao
-                    |
-                    ;
+argumentos_opcional 
+    : expressao mais_expressao
+    |
+    ;
 
-selecao : constantes DOISPONTOS comandos mais_selecao
-        ;
+selecao 
+    : constantes DOISPONTOS comandos mais_selecao
+    ;
 
-mais_selecao : selecao
-             |
-             ;
+mais_selecao 
+    : selecao
+    |
+    ;
 
-constantes : numero_intervalo mais_constantes
-           ;
+constantes 
+    : numero_intervalo mais_constantes
+    ;
 
-mais_constantes : VIRGULA constantes
-                |
-                ;
+mais_constantes 
+    : VIRGULA constantes
+    |
+    ;
 
-numero_intervalo : op_unario NUM_INT intervalo_opcional
-                 ;
+numero_intervalo 
+    : op_unario NUM_INT intervalo_opcional
+    ;
 
-intervalo_opcional : PONTOPONTO op_unario NUM_INT
-                   |
-                   ;
+intervalo_opcional 
+    : PONTOPONTO op_unario NUM_INT
+    |
+    ;
 
-op_unario : SUBTRACAO
-          |
-          ;
+op_unario 
+    : SUBTRACAO
+    |
+    ;
 
 exp_aritmetica returns [String tipoSimbolo, String txt]
-    @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
+@init{$tipoSimbolo="SEM_TIPO"; $txt="";}
     : v1=termo v2=outros_termos 
-      {
-       $txt=$v1.txt;
-       if($v2.tipoSimbolo.equals("SEM_TIPO"))
+    {
+        $txt=$v1.txt;
+        if($v2.tipoSimbolo.equals("SEM_TIPO"))
             $tipoSimbolo=$v1.tipoSimbolo;
         else
         {
@@ -600,22 +599,27 @@ exp_aritmetica returns [String tipoSimbolo, String txt]
                 $tipoSimbolo=$v1.tipoSimbolo;
             else
                 $tipoSimbolo="incompativel";
-        }
-       
-      }
+        }   
+    }
     ;
 
-op_multiplicacao : MULTIPLICACAO
-                 | DIVISAO
-                 ;
+op_multiplicacao 
+    : MULTIPLICACAO
+    | DIVISAO
+    ;
 
-op_adicao : SOMA
-          | SUBTRACAO
-          ;
+op_adicao 
+    : SOMA
+    | SUBTRACAO
+    ;
 
 termo returns [String tipoSimbolo, String txt]
-    @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
-    :	v1=fator outros_fatores {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
+@init{$tipoSimbolo="SEM_TIPO"; $txt="";}
+    :	v1=fator outros_fatores 
+    { 
+        $tipoSimbolo=$v1.tipoSimbolo; 
+        $txt=$v1.txt;
+    }
     ;
 
 outros_termos returns[String tipoSimbolo]
@@ -631,70 +635,102 @@ outros_termos returns[String tipoSimbolo]
             else
                 $tipoSimbolo="incompativel";
         }
-    
     }
     |
     ;
 
 fator returns [String tipoSimbolo, String txt]
-    @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
-    : v1=parcela outras_parcelas {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
+@init{$tipoSimbolo="SEM_TIPO"; $txt="";}
+    : v1=parcela outras_parcelas 
+    {
+        $tipoSimbolo=$v1.tipoSimbolo; 
+        $txt=$v1.txt;
+    }
     ;
 
-outros_fatores : (op_multiplicacao fator)*
-               ;
+outros_fatores 
+    : (op_multiplicacao fator)*
+    ;
 
 parcela returns [String tipoSimbolo, String txt]
-    @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
-    : op_unario v1=parcela_unario {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
-    | v2=parcela_nao_unario {$tipoSimbolo=$v2.tipoSimbolo; $txt=$v2.txt;}
+@init{$tipoSimbolo="SEM_TIPO"; $txt="";}
+    : op_unario v1=parcela_unario 
+    {
+        $tipoSimbolo=$v1.tipoSimbolo; 
+        $txt=$v1.txt;
+    }
+    | v2=parcela_nao_unario 
+    {
+        $tipoSimbolo=$v2.tipoSimbolo; 
+        $txt=$v2.txt;
+    }
     ;
 
 parcela_unario returns [String txt, int linha, String tipoSimbolo] 
-     @init {$txt=""; $linha=-1; $tipoSimbolo="SEM_TIPO";}
+@init {$txt=""; $linha=-1; $tipoSimbolo="SEM_TIPO";}
     : EXPOENTE v1=IDENT v2=outros_ident dimensao
-      
-      { 
+    { 
         $txt+=$v1.getText()+$v2.txt;
         $linha = $v1.getLine();
        
-       if(!pilhaDeTabelas.existeSimbolo($v1.getText()+$v2.txt))
-               error+="Linha " + $v1.getLine() + ": identificador " + $v1.getText()+$v2.txt + " nao declarado\n blablabla \n";
-       if($v2.txt.equals("")) 
-           $tipoSimbolo = pilhaDeTabelas.topo().GetTipoSimbolo($txt);
-       else
-          $tipoSimbolo = TabelasDeRegistros.getTipoDoSimbolo($v2.txt.substring(1));
-      }
+        if(!pilhaDeTabelas.existeSimbolo($v1.getText()+$v2.txt))
+            error+="Linha " + $v1.getLine() + ": identificador " + $v1.getText()+$v2.txt + " nao declarado\n blablabla \n";
+        if($v2.txt.equals("")) 
+            $tipoSimbolo = pilhaDeTabelas.topo().GetTipoSimbolo($txt);
+        else
+            $tipoSimbolo = TabelasDeRegistros.getTipoDoSimbolo($v2.txt.substring(1));
+    }
                 
-      | v3=IDENT v4=chamada_partes[$v3.getText()]
+    | v3=IDENT v4=chamada_partes[$v3.getText()]
+    {
+        $txt+=$v3.getText()+$v4.outrosIdent;
+        $linha = $v3.getLine();
+        if(!pilhaDeTabelas.existeSimbolo($txt))
+            error+="Linha " + $v3.getLine() + ": identificador " + $txt + " nao declarado\n";
+        else
         {
-            $txt+=$v3.getText()+$v4.outrosIdent;
-            $linha = $v3.getLine();
-            if(!pilhaDeTabelas.existeSimbolo($txt))
-                error+="Linha " + $v3.getLine() + ": identificador " + $txt + " nao declarado\n";
+            if($v4.tipoSimbolo.equals("SEM_TIPO"))
+                $tipoSimbolo = pilhaDeTabelas.topo().GetTipoSimbolo($txt);
             else
-            {
-                if($v4.tipoSimbolo.equals("SEM_TIPO"))
-                    $tipoSimbolo = pilhaDeTabelas.topo().GetTipoSimbolo($txt);
-                else
-                    $tipoSimbolo = $v4.tipoSimbolo;
-            }
+                $tipoSimbolo = $v4.tipoSimbolo;
         }
+    }
                  
-      | NUM_INT  {$tipoSimbolo = "inteiro"; $txt=$NUM_INT.getText();}
-      | NUM_REAL {$tipoSimbolo = "real"; $txt=$NUM_REAL.getText();}
-      | ABREPARENTESE v7=expressao FECHAPARENTESE {$tipoSimbolo=$v7.tipoSimbolo;}
-      ;
+    | NUM_INT  
+    {
+        $tipoSimbolo = "inteiro"; 
+        $txt=$NUM_INT.getText();
+    }
+    | NUM_REAL 
+    {  
+        $tipoSimbolo = "real"; 
+        $txt=$NUM_REAL.getText();
+    }
+    | ABREPARENTESE v7=expressao FECHAPARENTESE 
+    {
+        $tipoSimbolo=$v7.tipoSimbolo;
+    }
+    ;
 
 parcela_nao_unario returns [String txt, int linha, String tipoSimbolo]
 @init {$txt=""; $linha=-1; $tipoSimbolo="SEM_TIPO";}
-    : OPERADOR_E v1=IDENT {$txt+=$v1.getText(); $linha = $v1.getLine();} v2=outros_ident {$txt+= $v2.txt; $tipoSimbolo = pilhaDeTabelas.getTipoDoSimbolo($txt);} dimensao
-    
-                   | CADEIA {$tipoSimbolo = "literal"; $txt=$CADEIA.getText();}
-                   ;
+    : OPERADOR_E v1=IDENT v2=outros_ident 
+    {
+        $txt+=$v1.getText(); 
+        $linha = $v1.getLine();
+        $txt+= $v2.txt; $tipoSimbolo = pilhaDeTabelas.getTipoDoSimbolo($txt);
+    }
+    dimensao
+    | CADEIA 
+    {
+        $tipoSimbolo = "literal"; 
+        $txt=$CADEIA.getText();
+    }
+    ;
 
-outras_parcelas : (PORCENTAGEM parcela)*
-                ;
+outras_parcelas 
+    : (PORCENTAGEM parcela)*
+    ;
 
 chamada_partes[String primeiroIdent] returns[String tipoSimbolo, String outrosIdent]
 @init {$tipoSimbolo="SEM_TIPO"; $outrosIdent="";}
@@ -712,43 +748,45 @@ chamada_partes[String primeiroIdent] returns[String tipoSimbolo, String outrosId
        
     }*/
     | v3=outros_ident dimensao
-      
-      {
-       $outrosIdent = $v3.txt;
-       $tipoSimbolo = pilhaDeTabelas.topo().GetTipoSimbolo($primeiroIdent+$v3.txt);
-       }
+    {
+        $outrosIdent = $v3.txt;
+        $tipoSimbolo = pilhaDeTabelas.topo().GetTipoSimbolo($primeiroIdent+$v3.txt);
+    }
     |
     ;
 
 exp_relacional returns [String tipoSimbolo]
-    @init{$tipoSimbolo="SEM_TIPO";}
+@init{$tipoSimbolo="SEM_TIPO";}
     : v1=exp_aritmetica v2=op_opcional 
-      {
-          if($v2.tipoSimbolo.equals("SEM_TIPO"))
-              $tipoSimbolo=$v1.tipoSimbolo;
-          else
-              $tipoSimbolo=$v2.tipoSimbolo;
-      }
+    {
+        if($v2.tipoSimbolo.equals("SEM_TIPO"))
+            $tipoSimbolo=$v1.tipoSimbolo;
+        else
+            $tipoSimbolo=$v2.tipoSimbolo;
+    }
     ;
 
 op_opcional returns[String tipoSimbolo]
 @init{$tipoSimbolo="SEM_TIPO";} 
-    : v1=op_relacional exp_aritmetica {$tipoSimbolo=$v1.tipoSimbolo;}
+    : v1=op_relacional exp_aritmetica 
+    {
+        $tipoSimbolo=$v1.tipoSimbolo;
+    }
     |
     ;
 
 op_relacional returns[String tipoSimbolo]
 @init{$tipoSimbolo="SEM_TIPO";}
-              : IGUAL {$tipoSimbolo="logico";}
-              | DIFERENTE {$tipoSimbolo="logico";}
-              |	MAIORIGUAL {$tipoSimbolo="logico";}
-              |	MENORIGUAL {$tipoSimbolo="logico";}
-              |	MAIOR {$tipoSimbolo="logico";}
-              |	MENOR {$tipoSimbolo="logico";}
-              ;
+    : IGUAL {$tipoSimbolo="logico";}
+    | DIFERENTE {$tipoSimbolo="logico";}
+    | MAIORIGUAL {$tipoSimbolo="logico";}
+    | MENORIGUAL {$tipoSimbolo="logico";}
+    | MAIOR {$tipoSimbolo="logico";}
+    | MENOR {$tipoSimbolo="logico";}
+    ;
 
 expressao  returns [String tipoSimbolo]
-    @init{$tipoSimbolo="SEM_TIPO";} 
+@init{$tipoSimbolo="SEM_TIPO";} 
     : v1=termo_logico outros_termos_logicos {$tipoSimbolo=$v1.tipoSimbolo;}
     ;
 
@@ -757,23 +795,25 @@ op_nao : NAO
        ;
 
 termo_logico returns [String tipoSimbolo]
-    @init{$tipoSimbolo="SEM_TIPO";}
+@init{$tipoSimbolo="SEM_TIPO";}
     : v1=fator_logico outros_fatores_logicos {$tipoSimbolo=$v1.tipoSimbolo;}
     ;
 
-outros_termos_logicos : (OU termo_logico)*
-                      ;
+outros_termos_logicos 
+    : (OU termo_logico)*
+    ;
 
-outros_fatores_logicos : (E fator_logico)*
-                       ;
+outros_fatores_logicos 
+    : (E fator_logico)*
+    ;
 
 fator_logico returns [String tipoSimbolo]
-    @init{$tipoSimbolo="SEM_TIPO";}
+@init{$tipoSimbolo="SEM_TIPO";}
     : op_nao v1=parcela_logica {$tipoSimbolo=$v1.tipoSimbolo;}
     ;
 
 parcela_logica returns [String tipoSimbolo]
-    @init{$tipoSimbolo="SEM_TIPO";}
+@init{$tipoSimbolo="SEM_TIPO";}
     : VERDADEIRO {$tipoSimbolo = "logico";}
     | FALSO {$tipoSimbolo = "logico";}
     | v1=exp_relacional {$tipoSimbolo=$v1.tipoSimbolo;}
