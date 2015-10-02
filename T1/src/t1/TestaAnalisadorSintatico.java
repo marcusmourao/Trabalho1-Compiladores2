@@ -26,7 +26,7 @@ public class TestaAnalisadorSintatico {
        // parser.programa();
         
         try {
-                GeradorDeCodigo gdc = new GeradorDeCodigo();
+                GeradorDeCodigo gdc = new GeradorDeCodigo(out);
             
                 // Adição dos listeners no LEXER e no PARSER
                 lexer.addErrorListener(new T1ErrorListenerLexer(out));
@@ -43,13 +43,13 @@ public class TestaAnalisadorSintatico {
                     out.println(e.getMessage()+"Fim da compilacao");
              }
         
-        if (!out.isModificado()) {
-            out.println("Fim da analise. Sem erros sintaticos.");
+        //if (!out.isModificado()) {
+       //     out.println("Fim da analise. Sem erros sintaticos.");
            // out.println("Tabela de simbolos:");
 
            // TabelaDeSimbolos.imprimirTabela(out);
-            System.out.print(out);
-        } 
+        //    System.out.print(out);
+        //} 
         
         PrintWriter pw = new PrintWriter(new File(args[1]));
         pw.print(out.toString());

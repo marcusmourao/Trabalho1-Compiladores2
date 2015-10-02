@@ -262,12 +262,13 @@ mais_var returns[ List<String> nomes, int linha ]
     dimensao)*
     ;
 
-identificador returns [ String txt, int linha ] 
-@init { $txt = ""; $linha=-1;}
+identificador returns [ String txt, int linha, String tipoSimbolo ] 
+@init { $txt = ""; $linha=-1; $tipoSimbolo="SEM_TIPO";}
     : ponteiros_opcionais v1=IDENT dimensao v2=outros_ident 
     {
         $txt += $v1.text+$v2.txt;
-        $linha = $v1.getLine(); 
+        $linha = $v1.getLine();
+        $tipoSimbolo = pilhaDeTabelas.topo().GetTipoSimbolo($text);
     }
     ;
 
@@ -455,10 +456,12 @@ corpo : declaracoes_locais comandos
       ;
 
 comandos 
-    : cmd*
+    : cmd comandos
+    |
     ;
 
 cmd returns [ String tipoCmd ]
+@init{$tipoCmd="";}
     : LEIA ABREPARENTESE v10=identificador v11=mais_ident 
     {    
          if(!pilhaDeTabelas.existeSimbolo($v10.txt))
@@ -470,17 +473,17 @@ cmd returns [ String tipoCmd ]
          }    
     }
     FECHAPARENTESE { $tipoCmd = "leia"; }
-    | ESCREVA ABREPARENTESE expressao mais_expressao FECHAPARENTESE { $tipoCmd = "escreva"; }
+    | ESCREVA ABREPARENTESE expressao mais_expressao FECHAPARENTESE {$tipoCmd="escreva";}
     | SE expressao ENTAO comandos senao_opcional FIM_SE { $tipoCmd = "se"; }
-    | CASO exp_aritmetica SEJA selecao senao_opcional FIM_CASO
-    | PARA v1=IDENT ATRIBUICAO exp_aritmetica ATE exp_aritmetica FACA comandos FIM_PARA
+    | CASO exp_aritmetica SEJA selecao senao_opcional FIM_CASO { $tipoCmd = "caso"; }
+    | PARA v1=IDENT ATRIBUICAO exp_aritmetica ATE exp_aritmetica FACA comandos FIM_PARA { $tipoCmd = "para"; }
     /*{
         if(!pilhaDeTabelas.existeSimbolo($v1.getText()))
             error+="Linha " + $v1.getLine() + ": identificador " + $v1.getText() + " nao declarado";
     }*/
-    | ENQUANTO expressao FACA comandos FIM_ENQUANTO
-    | FACA comandos ATE expressao
-    | EXPOENTE v2=IDENT v5=outros_ident dimensao ATRIBUICAO v6=expressao 
+    | ENQUANTO expressao FACA comandos FIM_ENQUANTO { $tipoCmd = "enquanto"; }
+    | FACA comandos ATE expressao { $tipoCmd = "faca"; }
+    | EXPOENTE v2=IDENT v5=outros_ident dimensao ATRIBUICAO v6=expressao { $tipoCmd = "expoente"; }
     {
         String tipo_expressao = $v6.tipoSimbolo;
         String tipo_ident = pilhaDeTabelas.topo().GetTipoSimbolo($v2.getText());
@@ -755,14 +758,15 @@ chamada_partes[String primeiroIdent] returns[String tipoSimbolo, String outrosId
     |
     ;
 
-exp_relacional returns [String tipoSimbolo]
-@init{$tipoSimbolo="SEM_TIPO";}
+exp_relacional returns [String tipoSimbolo,String txt]
+@init{$tipoSimbolo="SEM_TIPO"; $txt="";}
     : v1=exp_aritmetica v2=op_opcional 
     {
         if($v2.tipoSimbolo.equals("SEM_TIPO"))
             $tipoSimbolo=$v1.tipoSimbolo;
         else
             $tipoSimbolo=$v2.tipoSimbolo;
+        $txt=$v1.txt;
     }
     ;
 
@@ -785,18 +789,18 @@ op_relacional returns[String tipoSimbolo]
     | MENOR {$tipoSimbolo="logico";}
     ;
 
-expressao  returns [String tipoSimbolo]
-@init{$tipoSimbolo="SEM_TIPO";} 
-    : v1=termo_logico outros_termos_logicos {$tipoSimbolo=$v1.tipoSimbolo;}
+expressao  returns [String tipoSimbolo, String txt]
+@init{$tipoSimbolo="SEM_TIPO"; $txt="";} 
+    : v1=termo_logico outros_termos_logicos {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
     ;
 
 op_nao : NAO
        |
        ;
 
-termo_logico returns [String tipoSimbolo]
-@init{$tipoSimbolo="SEM_TIPO";}
-    : v1=fator_logico outros_fatores_logicos {$tipoSimbolo=$v1.tipoSimbolo;}
+termo_logico returns [String tipoSimbolo, String txt]
+@init{$tipoSimbolo="SEM_TIPO"; $txt="";}
+    : v1=fator_logico outros_fatores_logicos {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
     ;
 
 outros_termos_logicos 
@@ -807,14 +811,14 @@ outros_fatores_logicos
     : (E fator_logico)*
     ;
 
-fator_logico returns [String tipoSimbolo]
-@init{$tipoSimbolo="SEM_TIPO";}
-    : op_nao v1=parcela_logica {$tipoSimbolo=$v1.tipoSimbolo;}
+fator_logico returns [String tipoSimbolo, String txt]
+@init{$tipoSimbolo="SEM_TIPO"; $txt="";}
+    : op_nao v1=parcela_logica {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
     ;
 
-parcela_logica returns [String tipoSimbolo]
-@init{$tipoSimbolo="SEM_TIPO";}
+parcela_logica returns [String tipoSimbolo, String txt]
+@init{$tipoSimbolo="SEM_TIPO"; $txt="";}
     : VERDADEIRO {$tipoSimbolo = "logico";}
     | FALSO {$tipoSimbolo = "logico";}
-    | v1=exp_relacional {$tipoSimbolo=$v1.tipoSimbolo;}
+    | v1=exp_relacional {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
     ;

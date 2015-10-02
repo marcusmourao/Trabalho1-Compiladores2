@@ -1,0 +1,18 @@
+#include <stdio.h>
+#include <stdlib.h>
+int main(){
+if(<expressao>){
+if(<expressao>){
+if(<expressao>){
+int primeiroInt, segundoInt;
+float primeiroReal, segundoReal;
+scanf("%d",&primeiroInt);
+printf("%d","O menor inteiro entre");
+if(<expressao>){
+printf("%d",segundoReal);
+if(<expressao>){
+printf("%d","O valor");
+printf("%d","O valor");
+printf("%d","Considerando-se o modulo, tem-se que o menor entre");
+return 0;
+}
