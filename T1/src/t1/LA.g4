@@ -265,22 +265,25 @@ decl_local
     ;
 
 variavel returns[List<String> nomes, String tipoSimbolo, int linha]
+//variavel retorna uma lista de identificadores, o tipo dos identificadores e a linha em que foi declarada
 @init {$nomes = new ArrayList<String>(); $tipoSimbolo=""; $linha=-1;}
     : v1=IDENT dimensao v2=mais_var DOISPONTOS m3=tipo[$tipoSimbolo] 
     {    
         int i=0;
         $tipoSimbolo = $m3.tipoSimbolo;
-        // error+="Tipo da variável: " + $m3.tipoSimbolo;
         $nomes.add($v1.getText());
         $nomes.addAll($v2.nomes);
         if($v2.linha==-1)
             $linha = $v1.getLine();
         else
             $linha = $v2.linha;
+       // caso mais_var não seja vazia a linha retornada é correspondente à mais_var
     }
     ;
 
 mais_var returns[ List<String> nomes, int linha ]
+//mais_var retorna uma lista de identificadores, o tipo dos identificadores e a linha em que foi declarada
+//mais_var pode retornar uma lista de nomes vazia por ser uma regra "recursiva" "não obrigatória"
 @init { $nomes = new ArrayList<String>(); $linha=-1; }
     : (VIRGULA v1=IDENT
     {
@@ -292,12 +295,14 @@ mais_var returns[ List<String> nomes, int linha ]
         else
         {
             error+="Linha " + $v1.getLine() + ": identificador " + $v1.getText() + " ja declarado anteriormente\n";
+            //quando uma variável já foi declarada no escopa atual um erro é gerado
         }
      }
     dimensao)*
     ;
 
-identificador returns [ String txt, int linha, String tipoSimbolo ] 
+identificador returns [ String txt, int linha, String tipoSimbolo ]
+//identificador retorna um "nome" , o tipo dos identificadores e a linha em que foi declarado
 @init { $txt = ""; $linha=-1; $tipoSimbolo="SEM_TIPO";}
     : ponteiros_opcionais v1=IDENT dimensao v2=outros_ident 
     {
@@ -312,24 +317,29 @@ ponteiros_opcionais
     ;
 
 outros_ident returns [ String txt ]
+//outros_ident retorna um campo texto que é utilizado quando temos variáveis que são de tipos de registros
+// exemplo: casa.endereço, casa.cor
 @init {$txt="";}
     : PONTO id=identificador { $txt = "."+$id.txt; }
     |
     ;
 	
 dimensao returns [String txt]
+// dimensão retorna um campo texto, é necessário quando temos operações com vetores
 @init {$txt="";}
     : ABRECOLCHETES v1=exp_aritmetica FECHACOLCHETES dimensao {$txt= "[" + $v1.txt + "]";}
     |
     ;
 
 tipo[String tipo_registro] returns [String tipoSimbolo, List<String> nomes ]
+//tipo retorna o tipo que é correspondente e uma lista de nomes que identifica as variáveis associadas à este tipo
 @init {$tipoSimbolo=""; $nomes = new ArrayList<String>();}
     : v1=registro[$tipo_registro] {$tipoSimbolo=$v1.typeRegistro; $nomes.addAll($registro.nomes);}
     | tipo_estendido {$tipoSimbolo = $tipo_estendido.tipoSimbolo;}
     ;
 
 mais_ident returns [List<String> nomes, int linha]
+//mais_ident retorna uma lista de variáveis declaradas (pode ser vazia) e a linha em que foram declaradas
 @init {$nomes = new ArrayList<String>(); $linha=-1;}
     : VIRGULA v1=identificador v2=mais_ident 
       {
@@ -341,6 +351,7 @@ mais_ident returns [List<String> nomes, int linha]
     ;
 	
 mais_variaveis returns[ List<String> nomes, String tipoSimbolo, int linha ]
+//mais_variaveis retorna uma lista de variáveis declaradas (pode ser vazia), o tipo dessas variáveis e a linha em que foram declaradas
 @init {$nomes = new ArrayList<String>(); $tipoSimbolo=""; $linha=-1;}
     : variavel f1=mais_variaveis 
     { 
@@ -382,6 +393,11 @@ valor_constante
 
 registro [String nome_registro] returns[String typeRegistro, List<String> nomes]
 @init {$nomes = new ArrayList<String>();}
+/* registro recebe como parâmetro o nome do registro
+   retorna o tipo desse registro e uma lista de variáveis associadas ao registro
+   quando um registro é declarado é empilhada uma nova tabela de simbolos para armazenar
+   as variáveis locais, ao final da declaração do registro essa tabela é desempilhada
+*/
     : REGISTRO 
     {
         pilhaDeTabelas.empilhar(new TabelaDeSimbolos("registro"));
@@ -424,12 +440,16 @@ declaracao_global
             pilhaDeTabelas.topo().adicionarSimbolo($v1.getText(), "procedimento");
             pilhaDeTabelas.empilhar(new TabelaDeSimbolos("procedimento"));
         }
+        // Quando se declara um procedimento é necessário que ele tenha um identificador válido (não tenha sido declarado ainda)
+        // Uma nova tabela de simbolos é empilhada no inicio da declaração do procedimento e desempilhada ao seu término
     }
     ABREPARENTESE parametros_opcional FECHAPARENTESE declaracoes_locais comandos FIM_PROCEDIMENTO 
     {    
         pilhaDeTabelas.desempilhar();
     }
-    | FUNCAO v1=IDENT 
+    | FUNCAO v1=IDENT
+    // Quando se declara uma função é necessário que ele tenha um identificador válido (não tenha sido declarado ainda)
+    // Uma nova tabela de simbolos é empilhada no inicio da declaração da função e desempilhada ao seu término
     {
         if(pilhaDeTabelas.topo().existeSimbolo($v1.getText()))
             error += "Linha " + $v1.getLine() + ": identificador "+$v1.getText()+" ja declarado anteriormente\n" ;
@@ -438,11 +458,13 @@ declaracao_global
             pilhaDeTabelas.empilhar(new TabelaDeSimbolos("funcao"));
         }
     }
+    
                     
     ABREPARENTESE parametros_opcional FECHAPARENTESE DOISPONTOS g1=tipo_estendido declaracoes_locais comandos FIM_FUNCAO
     {
         pilhaDeTabelas.desempilhar();
         pilhaDeTabelas.topo().adicionarSimbolo($v1.getText(), $g1.tipoSimbolo);
+        //É necessário empilhar um simbolo que corresponde ao nome da função no escopo atual, logo abaixo do escopo da função
     }
     ;
 
@@ -512,10 +534,6 @@ cmd returns [ String tipoCmd ]
     | SE expressao ENTAO comandos senao_opcional FIM_SE { $tipoCmd = "se"; }
     | CASO exp_aritmetica SEJA selecao senao_opcional FIM_CASO { $tipoCmd = "caso"; }
     | PARA v1=IDENT ATRIBUICAO exp_aritmetica ATE exp_aritmetica FACA comandos FIM_PARA { $tipoCmd = "para"; }
-    /*{
-        if(!pilhaDeTabelas.existeSimbolo($v1.getText()))
-            error+="Linha " + $v1.getLine() + ": identificador " + $v1.getText() + " nao declarado";
-    }*/
     | ENQUANTO expressao FACA comandos FIM_ENQUANTO { $tipoCmd = "enquanto"; }
     | FACA comandos ATE expressao { $tipoCmd = "faca"; }
     | EXPOENTE v2=IDENT v5=outros_ident dimensao ATRIBUICAO v6=expressao { $tipoCmd = "expoente"; }
@@ -525,12 +543,7 @@ cmd returns [ String tipoCmd ]
         if(!tipo_expressao.equals(tipo_ident))
             error+="Linha " + $v2.getLine() + ": atribuicao nao compativel para ^" + $v2.getText()+$v5.txt + "\n";
        
-    } /*{
-          if(!pilhaDeTabelas.existeSimbolo($v2.getText()+$v5.txt))
-                error+="Linha " + $v2.getLine() + ": identificador " + $v2.getText()+$v5.txt + " nao declarado";
-          if(!pilhaDeTabelas.getTipoDoSimbolo($v2.getText()+$v5.txt).equals($v6.tipoSimbolo))
-               error+="Linha " + $v2.getLine() + ": atribuicao nao compativel para ^" + $v2.getText()+$v5.txt + "\n";
-      }*/
+    } 
     | v3=IDENT chamada_atribuicao[$v3.text]
       {
           if(!pilhaDeTabelas.existeSimbolo($v3.getText()))
@@ -581,8 +594,6 @@ chamada_atribuicao[String primeiroIdent]
             }
             else
                 error+="Linha " + $v2.getLine() + ": atribuicao nao compativel para " + $primeiroIdent+$v1.txt+$d1.txt +"\n";
-                      //error+="Linha " + $v2.getLine() + ": atribuicao nao compativel para " + $primeiroIdent+$v1.txt + "\n" + tipo1 +"\n" + tipo2 + "\n";
-                      //String tipoExp = VerificadorDeTipos.verificaTipo($e1.ctx); 
         }
     }
     ;
