@@ -3,6 +3,6 @@
 int main(){
 char x[80];
 scanf("%s",&x);
-printf("%d",x);
+printf("%s",x);
 return 0;
 }

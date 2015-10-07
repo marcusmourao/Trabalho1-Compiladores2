@@ -1,4 +1,0 @@
-Linha 13: atribuicao nao compativel para valor1
-Linha 14: atribuicao nao compativel para valor2
-Linha 29: identificador simplifiqueRacional ja declarado anteriormente
-Fim da compilacao

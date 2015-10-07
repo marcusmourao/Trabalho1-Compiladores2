@@ -2,6 +2,6 @@
 #include <stdlib.h>
 int main(){
 if(<expressao>){
-printf("%d","4 eh maior do que 3");
+printf("%s","4 eh maior do que 3");
 return 0;
 }

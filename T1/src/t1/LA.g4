@@ -1,3 +1,8 @@
+/*
+Construção de Compiladores 2
+T1
+
+*/
 
 grammar LA;
 
@@ -7,8 +12,16 @@ grammar LA;
    TabelaDeSimbolos TabelaDeTipos = new TabelaDeSimbolos("tipos");
    PilhaDeTabelas TabelasDeRegistros = new PilhaDeTabelas();
    String error="";
+   
+/*
+A variável pilhaDeTabelas armazena todas as pilhas utilizadas na análise sintática da linguagem
+A variável TabelaDeTipos é utilizada para armazenar todos os tipos na linguagem ( tipos default e novos tipos declarados ao longo do programa em LA).
+A variável TabelasDeRegistros armazena todos os registros declarados em um programa LA.
+A variável error é utilizada para indicar se houve erro durante a análise semântica.
+*/
 }
 
+//A seguir declaramos todas as palavras e simbolos reservados da linguagem LA como tokens do ANTLR
 ALGORITMO: 'algoritmo';
 
 FIM_ALGORITMO :'fim_algoritmo';
@@ -139,13 +152,17 @@ NUM_INT : ('0'..'9')+;
 // Pelo menos um dígito seguido de um ponto decimal e de uma sequência de um ou mais dígitos
 NUM_REAL : ('0'..'9')+ '.' ('0'..'9')+;
 
-//Espa�os em branco IGNORADOS pelo analisador l�xico.
+//Espaços em branco, tabulação e quebra de linha ignorados pelo analisador léxico.
 WS : ( ' ' |'\t' | '\r' | '\n') {skip();}; 
 
-//coment�rios curtos IGNORADOS pelo analisador l�xico.
+//Comentários curtos ignorados pelo analisador léxico.
 COMENTARIO : '{' ~('\n'|'\r'|'\t')* '\r'? '\n'? '}'('\n'('\n'|'\t'))* {skip();};
 
-// Analisador Sintático
+/* 
+Analisador Sintático e Semântico
+A partir deste ponto realizamos as declarações das regras sintáticas que compões a linguagem LA, e tabém realizamos
+a análise semântica por meio do código que se apresenta entre chaves {} ao longo das regras da linguagem LA.
+*/
 
 programa : 
          { 
@@ -154,11 +171,15 @@ programa :
              TabelaDeTipos.adicionarSimbolo("inteiro", "inteiro");
              TabelaDeTipos.adicionarSimbolo("real", "real");
              TabelaDeTipos.adicionarSimbolo("logico", "logico");
+             //Todo programa possui um tabela de simbolos global, assim como os tipos default da linguagem             
           }
           declaracoes ALGORITMO corpo FIM_ALGORITMO
           { 
               pilhaDeTabelas.desempilhar();
               if(error!="")throw new RuntimeException(error);
+              /*Quando chegamos ao fim de um programa em LA desempilhamos a pilha "global" e caso tenha ocorrido
+              durante a análise semântica a variável "error" não estará vazia e conterá informações sobre o mesmo.
+              */
           }
          ;
 
@@ -177,13 +198,17 @@ decl_local
         {
             if(pilhaDeTabelas.topo().existeSimbolo(s))
                 error += "Linha " + $variavel.linha + ": identificador "+s+" ja declarado anteriormente\n" ;
-		//error+=pilhaDeTabelas.topo().getEscopo();
+		// Para cada variável declarada é necessário verificarmos se ela já não foi declarada anteriormente no escopo atual
             else{
 	        if(TabelaDeTipos.existeSimbolo($variavel.tipoSimbolo))
+                // Se a variável ainda não foi declarada verificamos se ela é de um tipo válido
+                // Se for válido adicionamos a nova variável na tabela de simbolos do escopo atual
                 {
                     pilhaDeTabelas.topo().adicionarSimbolo(s, $variavel.tipoSimbolo);
                     if(TabelasDeRegistros.existeTabela($variavel.tipoSimbolo)!=null)
                     {
+                    // Caso o tipo da variável seja um registro é necessário declararmos os componentes desse tipo nessa variável
+                    // Exemplo variável casa --> casa.endereço, casa.numero, casa.cor ...
                         TabelaDeSimbolos tabela_registro = TabelasDeRegistros.existeTabela($variavel.tipoSimbolo);
                         for (EntradaTabelaDeSimbolos t : tabela_registro.getSimbolos2())
                         {
@@ -191,9 +216,13 @@ decl_local
                         }
                     }
                     else
+                    // Caso o tipo não seja identificado é possível que ele tenha sido declarado como um registro
+                    // ao se declarar uma variável por meio da regra: 
+                    // tipo : <registro> | <tipo_extendido>
                     {
                         if(TabelasDeRegistros.existeTabela("registro")!=null)
                         {
+                         // Aqui também é necessário declararmos os componentes desse tipo na nova variável
                             TabelaDeSimbolos tabela_registro = TabelasDeRegistros.existeTabela("registro");
                             for (EntradaTabelaDeSimbolos t : tabela_registro.getSimbolos2())
                             {
@@ -203,7 +232,8 @@ decl_local
                     }   
                 }
                 else
-                {
+                { 
+                 // por fim, se o tipo não foi identificado a variável error identifica um erro de "tipo não declarado" 
                     error += "Linha " + $variavel.linha + ": tipo "+$variavel.tipoSimbolo+" nao declarado\n" ;
                     pilhaDeTabelas.topo().adicionarSimbolo(s, $variavel.tipoSimbolo);
                 }
@@ -216,6 +246,8 @@ decl_local
             error += "Linha " + $v1.getLine() + ": identificador "+$v1.getText()+" ja declarado anteriormente\n" ;
         else
             pilhaDeTabelas.topo().adicionarSimbolo($v1.getText(), $v2.tipoSimbolo);
+        // Verificamos se a nova variável já foi declarada anteriormente no escopo atuail, caso não tenha sido
+        // Adicionamos a nova variável à Tabela de Simbolos do escopo atual
     }
     | TIPO v1=IDENT DOISPONTOS v3=tipo[$v1.getText()]
     {
@@ -225,6 +257,9 @@ decl_local
         {
             pilhaDeTabelas.topo().adicionarSimbolo($v1.getText(), $v3.tipoSimbolo);
             TabelaDeTipos.adicionarSimbolo($v1.getText(), $v3.tipoSimbolo);
+            // Verificamos se a nova variável já foi declarada anteriormente no escopo atuail, caso não tenha sido
+            // Adicionamos a nova variável à Tabela de Simbolos do escopo atual
+            // Nesse caso também adicionamos a variável na TabelaDeTipos por ser um novo tipo
         }
     }
     ;

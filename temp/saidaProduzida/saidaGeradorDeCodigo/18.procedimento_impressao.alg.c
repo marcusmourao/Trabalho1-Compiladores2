@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 int main(){
-printf("%d",mensagem);
+printf("%s",mensagem);
 return 0;
 }

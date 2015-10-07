@@ -3,6 +3,6 @@
 int main(){
 int x;
 scanf("%d",&x);
-printf("%d","O valor fornecido foi: ");
+printf("%s","O valor fornecido foi: ");
 return 0;
 }

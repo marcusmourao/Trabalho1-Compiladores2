@@ -37,7 +37,7 @@ public class GeradorDeCodigo extends LABaseListener {
             saida.println("scanf(\"%" + verifica_tipo(ctx.identificador().tipoSimbolo) + "\",&" + ctx.identificador().txt + ");");
         } else {
             if (ctx.tipoCmd.equals("escreva")) {
-                saida.println("printf(\"%" + verifica_tipo(ctx.expressao().txt) +  "\"," + ctx.expressao().txt +  ");");
+                saida.println("printf(\"%" + verifica_tipo(ctx.expressao().tipoSimbolo) +  "\"," + ctx.expressao().txt +  ");");
             }
             else
                  if (ctx.tipoCmd.equals("se")) {
