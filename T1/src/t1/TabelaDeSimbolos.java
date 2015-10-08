@@ -1,16 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+//Classe Tabela de Simbolos, possui um escopo e uma lista de simbolos
 package t1;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author daniel
- */
 public class TabelaDeSimbolos {
     private String escopo;
     private List<EntradaTabelaDeSimbolos> simbolos;
@@ -44,7 +37,7 @@ public class TabelaDeSimbolos {
             atributos.add(simbolos.get(i).getTipo());
         }
         return atributos;
-    }
+    }//Retorna uma lista com tosos os tipos dos simbolos
     
     public List<EntradaTabelaDeSimbolos> getSimbolos2(){
         List<EntradaTabelaDeSimbolos> atributos = new ArrayList<EntradaTabelaDeSimbolos>();
@@ -52,12 +45,12 @@ public class TabelaDeSimbolos {
             atributos.add(simbolos.get(i));
         }
         return atributos;
-    }
+    }//Retorna uma lista com todos os SIMBOLOS da tabela
     
     
     public String getEscopo(){
         return this.escopo;
-        }
+        } //Retorna o escopo da tabela
     
     public boolean existeSimbolo(String nome) {
         for(EntradaTabelaDeSimbolos etds:simbolos) {
@@ -66,7 +59,7 @@ public class TabelaDeSimbolos {
             }
         }
         return false;
-    }
+    }//Verifica se um simbolo pertence à tabela
     
     public EntradaTabelaDeSimbolos getSimbolo(String nome){
         for(EntradaTabelaDeSimbolos etds:simbolos) {
@@ -75,7 +68,7 @@ public class TabelaDeSimbolos {
             }
         }
         return null;
-    }
+    } //Retorna o simbolo de acordo com o nome passado como parâmetro se o simbolo existir na tabela
     
     public String GetTipoSimbolo(String nome) {
         for(EntradaTabelaDeSimbolos etds:simbolos) {
@@ -84,7 +77,7 @@ public class TabelaDeSimbolos {
             }
         }
         return "SEM_TIPO";
-    }
+    }// Retorna o tipo do simbolo caso o simbolo esteja presente na tabela
     
     @Override
     public String toString() {

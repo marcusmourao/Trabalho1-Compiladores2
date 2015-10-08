@@ -1,13 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package t1;
 
-/**
- *
- * @author daniel
- */
 public class Saida {
     private static StringBuffer texto = new StringBuffer();
     

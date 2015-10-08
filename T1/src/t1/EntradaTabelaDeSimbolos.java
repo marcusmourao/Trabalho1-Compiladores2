@@ -1,13 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package t1;
-
-/**
- *
- * @author daniel
- */
+/* Classe que define como os simbolos serão armazenados. Todos terão um nome e um tipo associado.
+*/
 public class EntradaTabelaDeSimbolos {
     private String nome, tipo;
     

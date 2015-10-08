@@ -1,13 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package t1;
 
 import java.util.BitSet;
 import org.antlr.v4.runtime.ANTLRErrorListener;
+//Listener Lexer para identificar erros
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
@@ -15,10 +11,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
 
-/**
- *
- * @author Marcus
- */
+
 public class T1ErrorListenerLexer implements ANTLRErrorListener{
     SaidaParser sp;
     

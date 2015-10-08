@@ -162,6 +162,9 @@ COMENTARIO : '{' ~('\n'|'\r'|'\t')* '\r'? '\n'? '}'('\n'('\n'|'\t'))* {skip();};
 Analisador Sintático e Semântico
 A partir deste ponto realizamos as declarações das regras sintáticas que compões a linguagem LA, e tabém realizamos
 a análise semântica por meio do código que se apresenta entre chaves {} ao longo das regras da linguagem LA.
+Obs: A maioria das regras sintáticas foram apenas transcritas de sua definição para o formato que o ANTLR aceita.
+Modificações do tipo <outros_termos_logicos>: OU <termo_logico> <outros_termos_logicos> | <vazio> para ----> <outros_termos_logicos> : (OU <termo_logico>)*
+foram realizadas para simplificar a gramática.
 */
 
 programa : 
@@ -493,6 +496,10 @@ parametro
          }
         
      }
+     /* Verificamos se o simbolo já foi declarado anteriormente, caso não tenha sido empilhamos o mesmo na tabela de simbolo
+        e também verificamos o tipo do simbolo declarado. Se seu tipo for um registro fazemos as "declarações adicionais" na
+        variável.
+     */
      ;
 
 var_opcional 
@@ -518,6 +525,7 @@ comandos
     ;
 
 cmd returns [ String tipoCmd ]
+// cmd retorna o tipo do comando (necessário na geração de código)
 @init{$tipoCmd="";}
     : LEIA ABREPARENTESE v10=identificador v11=mais_ident 
     {    
@@ -528,7 +536,8 @@ cmd returns [ String tipoCmd ]
              if(!pilhaDeTabelas.existeSimbolo(s))
                  error+="Linha " + $v10.linha + ": identificador " + s + " nao declarado\n";
          }    
-    }
+    } 
+    //Há uma verificação para ver se os simbolos utilizados já foram declarados anteriormente ou não
     FECHAPARENTESE { $tipoCmd = "leia"; }
     | ESCREVA ABREPARENTESE expressao mais_expressao FECHAPARENTESE {$tipoCmd="escreva";}
     | SE expressao ENTAO comandos senao_opcional FIM_SE { $tipoCmd = "se"; }
@@ -543,11 +552,12 @@ cmd returns [ String tipoCmd ]
         if(!tipo_expressao.equals(tipo_ident))
             error+="Linha " + $v2.getLine() + ": atribuicao nao compativel para ^" + $v2.getText()+$v5.txt + "\n";
        
-    } 
+    }//Quando há uma atribuição é necessário verificarmos se o simbolo atribuido é compatível com o simbolo do lado esquerdo da atribuição 
     | v3=IDENT chamada_atribuicao[$v3.text]
       {
           if(!pilhaDeTabelas.existeSimbolo($v3.getText()))
-              error+="Linha " + $v3.getLine() + ": identificador " + $v3.getText() + " nao declarado\n"; 
+              error+="Linha " + $v3.getLine() + ": identificador " + $v3.getText() + " nao declarado\n";
+          //Verificação para ver se o simbolo já foi declarado anteriormente.
 
       }
     | v4=RETORNE expressao
@@ -555,6 +565,8 @@ cmd returns [ String tipoCmd ]
         String escopoAtual=pilhaDeTabelas.topo().getEscopo();
         if(escopoAtual.equals("funcao")==false){
             error+="Linha " + $v4.getLine() + ": comando retorne nao permitido nesse escopo\n";
+        //O comando retorne só é permitido no escopo de uma função, verificamos o escopo atual, caso ele seja diferente
+        // do escopo de uma função geramos um erro.
         }
       }
     ;
@@ -572,7 +584,8 @@ mais_expressao returns[String tipoSimbolo]
       else
           $tipoSimbolo="incompativel";
      }
-    }
+    }//verificação para ver se os simbolos são compatíveis, eles devem possuir um tipo idêntico. Os únicos tipos diferentes
+     // que são compatíveis da mesma forma são inteiros e reais.
     |
     ;
 
@@ -595,6 +608,7 @@ chamada_atribuicao[String primeiroIdent]
             else
                 error+="Linha " + $v2.getLine() + ": atribuicao nao compativel para " + $primeiroIdent+$v1.txt+$d1.txt +"\n";
         }
+        //Relizamos a verificação de tipos compatíveis, caso não sejam geramos um erro.
     }
     ;
 
@@ -636,6 +650,7 @@ op_unario
     ;
 
 exp_aritmetica returns [String tipoSimbolo, String txt]
+//retorna o simbolo e o tipo do simbolo
 @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
     : v1=termo v2=outros_termos 
     {
@@ -650,6 +665,8 @@ exp_aritmetica returns [String tipoSimbolo, String txt]
                 $tipoSimbolo="incompativel";
         }   
     }
+    //Dentro da regra fazemos uma "pré-verificação" dos tipos compatíves, caso um termo tenha um tipo incompatível com os outros
+    //termos, a expressão inteira se torna incompatível.
     ;
 
 op_multiplicacao 
@@ -663,6 +680,7 @@ op_adicao
     ;
 
 termo returns [String tipoSimbolo, String txt]
+//retorna o simbolo e o tipo do simbolo
 @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
     :	v1=fator outros_fatores 
     { 
@@ -673,6 +691,8 @@ termo returns [String tipoSimbolo, String txt]
 
 outros_termos returns[String tipoSimbolo]
 @init{$tipoSimbolo="SEM_TIPO";}
+// retorna o tipo do simbolo
+// aqui também realizamos uma "pré-verificação" para verificar se todos os termos são compatíveis
     : op_adicao v1=termo v2=outros_termos
     {
         if($v2.tipoSimbolo.equals("SEM_TIPO"))
@@ -689,6 +709,7 @@ outros_termos returns[String tipoSimbolo]
     ;
 
 fator returns [String tipoSimbolo, String txt]
+//retorna o simbolo e o tipo do simbolo
 @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
     : v1=parcela outras_parcelas 
     {
@@ -702,6 +723,7 @@ outros_fatores
     ;
 
 parcela returns [String tipoSimbolo, String txt]
+//retorna o simbolo e o tipo do simbolo
 @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
     : op_unario v1=parcela_unario 
     {
@@ -716,6 +738,8 @@ parcela returns [String tipoSimbolo, String txt]
     ;
 
 parcela_unario returns [String txt, int linha, String tipoSimbolo] 
+//retorna o simbolo e o tipo do simbolo
+// Verificamos se os simbolos utilizados já foram declarados
 @init {$txt=""; $linha=-1; $tipoSimbolo="SEM_TIPO";}
     : EXPOENTE v1=IDENT v2=outros_ident dimensao
     { 
@@ -723,7 +747,7 @@ parcela_unario returns [String txt, int linha, String tipoSimbolo]
         $linha = $v1.getLine();
        
         if(!pilhaDeTabelas.existeSimbolo($v1.getText()+$v2.txt))
-            error+="Linha " + $v1.getLine() + ": identificador " + $v1.getText()+$v2.txt + " nao declarado\n blablabla \n";
+            error+="Linha " + $v1.getLine() + ": identificador " + $v1.getText()+$v2.txt + " nao declarado\n";
         if($v2.txt.equals("")) 
             $tipoSimbolo = pilhaDeTabelas.topo().GetTipoSimbolo($txt);
         else
@@ -762,6 +786,7 @@ parcela_unario returns [String txt, int linha, String tipoSimbolo]
     ;
 
 parcela_nao_unario returns [String txt, int linha, String tipoSimbolo]
+//retorna o simbolo, o tipo do simbolo e a linha em que foi declarado
 @init {$txt=""; $linha=-1; $tipoSimbolo="SEM_TIPO";}
     : OPERADOR_E v1=IDENT v2=outros_ident 
     {
@@ -782,20 +807,11 @@ outras_parcelas
     ;
 
 chamada_partes[String primeiroIdent] returns[String tipoSimbolo, String outrosIdent]
+//recebe como parametro o primeiro identificador (necessário para retornar o tipo do simbolo)
+//retorna o tipo do simbolo e os outrosIdent (caso existirem)
 @init {$tipoSimbolo="SEM_TIPO"; $outrosIdent="";}
     : ABREPARENTESE v1=expressao v2=mais_expressao FECHAPARENTESE
-    /*{
-        if($v2.tipoSimbolo.equals("SEM_TIPO"))
-            $tipoSimbolo=$v1.tipoSimbolo;
-        else
-        {
-            if($v1.tipoSimbolo.equals($v2.tipoSimbolo) || $v1.tipoSimbolo.equals("inteiro") && $v2.tipoSimbolo.equals("real") || $v1.tipoSimbolo.equals("real") && $v2.tipoSimbolo.equals("inteiro"))
-                $tipoSimbolo=$v1.tipoSimbolo;
-            else
-                $tipoSimbolo="incompativel";
-        }
-       
-    }*/
+ 
     | v3=outros_ident dimensao
     {
         $outrosIdent = $v3.txt;
@@ -805,6 +821,7 @@ chamada_partes[String primeiroIdent] returns[String tipoSimbolo, String outrosId
     ;
 
 exp_relacional returns [String tipoSimbolo,String txt]
+//retorna o simbolo e o tipo do simbolo
 @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
     : v1=exp_aritmetica v2=op_opcional 
     {
@@ -817,6 +834,7 @@ exp_relacional returns [String tipoSimbolo,String txt]
     ;
 
 op_opcional returns[String tipoSimbolo]
+// retorna o tipo do simbolo.
 @init{$tipoSimbolo="SEM_TIPO";} 
     : v1=op_relacional exp_aritmetica 
     {
@@ -826,6 +844,7 @@ op_opcional returns[String tipoSimbolo]
     ;
 
 op_relacional returns[String tipoSimbolo]
+//retorna o tipo do simbolo. Todas as operações relacionais retornam um tipo lógico como "resposta"
 @init{$tipoSimbolo="SEM_TIPO";}
     : IGUAL {$tipoSimbolo="logico";}
     | DIFERENTE {$tipoSimbolo="logico";}
@@ -836,6 +855,7 @@ op_relacional returns[String tipoSimbolo]
     ;
 
 expressao  returns [String tipoSimbolo, String txt]
+//retorna o simbolo e o tipo do simbolo
 @init{$tipoSimbolo="SEM_TIPO"; $txt="";} 
     : v1=termo_logico outros_termos_logicos {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
     ;
@@ -845,6 +865,7 @@ op_nao : NAO
        ;
 
 termo_logico returns [String tipoSimbolo, String txt]
+//retorna o simbolo e o tipo do simbolo
 @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
     : v1=fator_logico outros_fatores_logicos {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
     ;
@@ -858,11 +879,13 @@ outros_fatores_logicos
     ;
 
 fator_logico returns [String tipoSimbolo, String txt]
+//retorna o simbolo e o tipo do simbolo
 @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
     : op_nao v1=parcela_logica {$tipoSimbolo=$v1.tipoSimbolo; $txt=$v1.txt;}
     ;
 
 parcela_logica returns [String tipoSimbolo, String txt]
+//retorna o simbolo e o tipo do simbolo
 @init{$tipoSimbolo="SEM_TIPO"; $txt="";}
     : VERDADEIRO {$tipoSimbolo = "logico";}
     | FALSO {$tipoSimbolo = "logico";}

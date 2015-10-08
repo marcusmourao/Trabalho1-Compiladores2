@@ -94,6 +94,13 @@ public class LAParser extends Parser {
 	   TabelaDeSimbolos TabelaDeTipos = new TabelaDeSimbolos("tipos");
 	   PilhaDeTabelas TabelasDeRegistros = new PilhaDeTabelas();
 	   String error="";
+	   
+	/*
+	A variável pilhaDeTabelas armazena todas as pilhas utilizadas na análise sintática da linguagem
+	A variável TabelaDeTipos é utilizada para armazenar todos os tipos na linguagem ( tipos default e novos tipos declarados ao longo do programa em LA).
+	A variável TabelasDeRegistros armazena todos os registros declarados em um programa LA.
+	A variável error é utilizada para indicar se houve erro durante a análise semântica.
+	*/
 
 	public LAParser(TokenStream input) {
 		super(input);
@@ -134,6 +141,7 @@ public class LAParser extends Parser {
 			             TabelaDeTipos.adicionarSimbolo("inteiro", "inteiro");
 			             TabelaDeTipos.adicionarSimbolo("real", "real");
 			             TabelaDeTipos.adicionarSimbolo("logico", "logico");
+			             //Todo programa possui um tabela de simbolos global, assim como os tipos default da linguagem             
 			          
 			setState(121); declaracoes();
 			setState(122); match(ALGORITMO);
@@ -142,6 +150,9 @@ public class LAParser extends Parser {
 			 
 			              pilhaDeTabelas.desempilhar();
 			              if(error!="")throw new RuntimeException(error);
+			              /*Quando chegamos ao fim de um programa em LA desempilhamos a pilha "global" e caso tenha ocorrido
+			              durante a análise semântica a variável "error" não estará vazia e conterá informações sobre o mesmo.
+			              */
 			          
 			}
 		}
@@ -324,13 +335,17 @@ public class LAParser extends Parser {
 				        {
 				            if(pilhaDeTabelas.topo().existeSimbolo(s))
 				                error += "Linha " + ((Decl_localContext)_localctx).variavel.linha + ": identificador "+s+" ja declarado anteriormente\n" ;
-						//error+=pilhaDeTabelas.topo().getEscopo();
+						// Para cada variável declarada é necessário verificarmos se ela já não foi declarada anteriormente no escopo atual
 				            else{
 					        if(TabelaDeTipos.existeSimbolo(((Decl_localContext)_localctx).variavel.tipoSimbolo))
+				                // Se a variável ainda não foi declarada verificamos se ela é de um tipo válido
+				                // Se for válido adicionamos a nova variável na tabela de simbolos do escopo atual
 				                {
 				                    pilhaDeTabelas.topo().adicionarSimbolo(s, ((Decl_localContext)_localctx).variavel.tipoSimbolo);
 				                    if(TabelasDeRegistros.existeTabela(((Decl_localContext)_localctx).variavel.tipoSimbolo)!=null)
 				                    {
+				                    // Caso o tipo da variável seja um registro é necessário declararmos os componentes desse tipo nessa variável
+				                    // Exemplo variável casa --> casa.endereço, casa.numero, casa.cor ...
 				                        TabelaDeSimbolos tabela_registro = TabelasDeRegistros.existeTabela(((Decl_localContext)_localctx).variavel.tipoSimbolo);
 				                        for (EntradaTabelaDeSimbolos t : tabela_registro.getSimbolos2())
 				                        {
@@ -338,9 +353,13 @@ public class LAParser extends Parser {
 				                        }
 				                    }
 				                    else
+				                    // Caso o tipo não seja identificado é possível que ele tenha sido declarado como um registro
+				                    // ao se declarar uma variável por meio da regra: 
+				                    // tipo : <registro> | <tipo_extendido>
 				                    {
 				                        if(TabelasDeRegistros.existeTabela("registro")!=null)
 				                        {
+				                         // Aqui também é necessário declararmos os componentes desse tipo na nova variável
 				                            TabelaDeSimbolos tabela_registro = TabelasDeRegistros.existeTabela("registro");
 				                            for (EntradaTabelaDeSimbolos t : tabela_registro.getSimbolos2())
 				                            {
@@ -350,7 +369,8 @@ public class LAParser extends Parser {
 				                    }   
 				                }
 				                else
-				                {
+				                { 
+				                 // por fim, se o tipo não foi identificado a variável error identifica um erro de "tipo não declarado" 
 				                    error += "Linha " + ((Decl_localContext)_localctx).variavel.linha + ": tipo "+((Decl_localContext)_localctx).variavel.tipoSimbolo+" nao declarado\n" ;
 				                    pilhaDeTabelas.topo().adicionarSimbolo(s, ((Decl_localContext)_localctx).variavel.tipoSimbolo);
 				                }
@@ -373,6 +393,8 @@ public class LAParser extends Parser {
 				            error += "Linha " + ((Decl_localContext)_localctx).v1.getLine() + ": identificador "+((Decl_localContext)_localctx).v1.getText()+" ja declarado anteriormente\n" ;
 				        else
 				            pilhaDeTabelas.topo().adicionarSimbolo(((Decl_localContext)_localctx).v1.getText(), ((Decl_localContext)_localctx).v2.tipoSimbolo);
+				        // Verificamos se a nova variável já foi declarada anteriormente no escopo atuail, caso não tenha sido
+				        // Adicionamos a nova variável à Tabela de Simbolos do escopo atual
 				    
 				}
 				break;
@@ -390,6 +412,9 @@ public class LAParser extends Parser {
 				        {
 				            pilhaDeTabelas.topo().adicionarSimbolo(((Decl_localContext)_localctx).v1.getText(), ((Decl_localContext)_localctx).v3.tipoSimbolo);
 				            TabelaDeTipos.adicionarSimbolo(((Decl_localContext)_localctx).v1.getText(), ((Decl_localContext)_localctx).v3.tipoSimbolo);
+				            // Verificamos se a nova variável já foi declarada anteriormente no escopo atuail, caso não tenha sido
+				            // Adicionamos a nova variável à Tabela de Simbolos do escopo atual
+				            // Nesse caso também adicionamos a variável na TabelaDeTipos por ser um novo tipo
 				        }
 				    
 				}
@@ -456,13 +481,13 @@ public class LAParser extends Parser {
 			    
 			        int i=0;
 			        ((VariavelContext)_localctx).tipoSimbolo =  ((VariavelContext)_localctx).m3.tipoSimbolo;
-			        // error+="Tipo da variável: " + ((VariavelContext)_localctx).m3.tipoSimbolo;
 			        _localctx.nomes.add(((VariavelContext)_localctx).v1.getText());
 			        _localctx.nomes.addAll(((VariavelContext)_localctx).v2.nomes);
 			        if(((VariavelContext)_localctx).v2.linha==-1)
 			            ((VariavelContext)_localctx).linha =  ((VariavelContext)_localctx).v1.getLine();
 			        else
 			            ((VariavelContext)_localctx).linha =  ((VariavelContext)_localctx).v2.linha;
+			       // caso mais_var não seja vazia a linha retornada é correspondente à mais_var
 			    
 			}
 		}
@@ -534,6 +559,7 @@ public class LAParser extends Parser {
 				        else
 				        {
 				            error+="Linha " + ((Mais_varContext)_localctx).v1.getLine() + ": identificador " + ((Mais_varContext)_localctx).v1.getText() + " ja declarado anteriormente\n";
+				            //quando uma variável já foi declarada no escopa atual um erro é gerado
 				        }
 				     
 				setState(167); dimensao();
@@ -1385,6 +1411,8 @@ public class LAParser extends Parser {
 				            pilhaDeTabelas.topo().adicionarSimbolo(((Declaracao_globalContext)_localctx).v1.getText(), "procedimento");
 				            pilhaDeTabelas.empilhar(new TabelaDeSimbolos("procedimento"));
 				        }
+				        // Quando se declara um procedimento é necessário que ele tenha um identificador válido (não tenha sido declarado ainda)
+				        // Uma nova tabela de simbolos é empilhada no inicio da declaração do procedimento e desempilhada ao seu término
 				    
 				setState(258); match(ABREPARENTESE);
 				setState(259); parametros_opcional();
@@ -1421,6 +1449,7 @@ public class LAParser extends Parser {
 
 				        pilhaDeTabelas.desempilhar();
 				        pilhaDeTabelas.topo().adicionarSimbolo(((Declaracao_globalContext)_localctx).v1.getText(), ((Declaracao_globalContext)_localctx).g1.tipoSimbolo);
+				        //É necessário empilhar um simbolo que corresponde ao nome da função no escopo atual, logo abaixo do escopo da função
 				    
 				}
 				break;
@@ -2043,7 +2072,8 @@ public class LAParser extends Parser {
 				setState(382); chamada_atribuicao((((CmdContext)_localctx).v3!=null?((CmdContext)_localctx).v3.getText():null));
 
 				          if(!pilhaDeTabelas.existeSimbolo(((CmdContext)_localctx).v3.getText()))
-				              error+="Linha " + ((CmdContext)_localctx).v3.getLine() + ": identificador " + ((CmdContext)_localctx).v3.getText() + " nao declarado\n"; 
+				              error+="Linha " + ((CmdContext)_localctx).v3.getLine() + ": identificador " + ((CmdContext)_localctx).v3.getText() + " nao declarado\n";
+				          //Verificação para ver se o simbolo já foi declarado anteriormente.
 
 				      
 				}
@@ -2057,6 +2087,8 @@ public class LAParser extends Parser {
 				        String escopoAtual=pilhaDeTabelas.topo().getEscopo();
 				        if(escopoAtual.equals("funcao")==false){
 				            error+="Linha " + ((CmdContext)_localctx).v4.getLine() + ": comando retorne nao permitido nesse escopo\n";
+				        //O comando retorne só é permitido no escopo de uma função, verificamos o escopo atual, caso ele seja diferente
+				        // do escopo de uma função geramos um erro.
 				        }
 				      
 				}
@@ -2270,9 +2302,8 @@ public class LAParser extends Parser {
 				            }
 				            else
 				                error+="Linha " + ((Chamada_atribuicaoContext)_localctx).v2.getLine() + ": atribuicao nao compativel para " + _localctx.primeiroIdent+((Chamada_atribuicaoContext)_localctx).v1.txt+((Chamada_atribuicaoContext)_localctx).d1.txt +"\n";
-				                      //error+="Linha " + ((Chamada_atribuicaoContext)_localctx).v2.getLine() + ": atribuicao nao compativel para " + _localctx.primeiroIdent+((Chamada_atribuicaoContext)_localctx).v1.txt + "\n" + tipo1 +"\n" + tipo2 + "\n";
-				                      //String tipoExp = VerificadorDeTipos.verificaTipo(((Chamada_atribuicaoContext)_localctx).e1); 
 				        }
+				        //Relizamos a verificação de tipos compatíveis, caso não sejam geramos um erro.
 				    
 				}
 				break;
@@ -3217,7 +3248,7 @@ public class LAParser extends Parser {
 				        ((Parcela_unarioContext)_localctx).linha =  ((Parcela_unarioContext)_localctx).v1.getLine();
 				       
 				        if(!pilhaDeTabelas.existeSimbolo(((Parcela_unarioContext)_localctx).v1.getText()+((Parcela_unarioContext)_localctx).v2.txt))
-				            error+="Linha " + ((Parcela_unarioContext)_localctx).v1.getLine() + ": identificador " + ((Parcela_unarioContext)_localctx).v1.getText()+((Parcela_unarioContext)_localctx).v2.txt + " nao declarado\n blablabla \n";
+				            error+="Linha " + ((Parcela_unarioContext)_localctx).v1.getLine() + ": identificador " + ((Parcela_unarioContext)_localctx).v1.getText()+((Parcela_unarioContext)_localctx).v2.txt + " nao declarado\n";
 				        if(((Parcela_unarioContext)_localctx).v2.txt.equals("")) 
 				            ((Parcela_unarioContext)_localctx).tipoSimbolo =  pilhaDeTabelas.topo().GetTipoSimbolo(_localctx.txt);
 				        else

@@ -1,3 +1,4 @@
+//Listener Parser para identificar erros sintáticos
 package t1;
 
 import java.util.BitSet;

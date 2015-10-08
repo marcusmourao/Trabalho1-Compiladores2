@@ -62,6 +62,13 @@ public class LALexer extends Lexer {
 	   TabelaDeSimbolos TabelaDeTipos = new TabelaDeSimbolos("tipos");
 	   PilhaDeTabelas TabelasDeRegistros = new PilhaDeTabelas();
 	   String error="";
+	   
+	/*
+	A variável pilhaDeTabelas armazena todas as pilhas utilizadas na análise sintática da linguagem
+	A variável TabelaDeTipos é utilizada para armazenar todos os tipos na linguagem ( tipos default e novos tipos declarados ao longo do programa em LA).
+	A variável TabelasDeRegistros armazena todos os registros declarados em um programa LA.
+	A variável error é utilizada para indicar se houve erro durante a análise semântica.
+	*/
 
 
 	public LALexer(CharStream input) {
